@@ -1,0 +1,6 @@
+CompileFlags:
+  CompilationDatabase: build/stm32f411re/
+  Remove: [-mfp16-format=ieee]
+
+InlayHints:
+  Enabled: false

@@ -1,0 +1,52 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 19,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "stm32f411re",
+            "description": "Build for STM32F411RE",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/stm32f411re",
+            "toolchainFile": "${sourceDir}/cmake/toolchain/stm32f411.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_C_FLAGS_DEBUG": "-O0 -g3",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "STM32F4xx_TARGET": "STM32F411xE",
+                "PLATFORM_TARGET": "PLATFORM_NUCLEOF411RE"
+            }
+        },
+        {
+            "name": "stm32f412zg",
+            "description": "Build for STM32F412ZG",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/stm32f412zg",
+            "toolchainFile": "${sourceDir}/cmake/toolchain/stm32f412.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_C_FLAGS_DEBUG": "-O0 -g3",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                "STM32F4xx_TARGET": "STM32F412Zx",
+                "PLATFORM_TARGET": "PLATFORM_NUCLEOF412ZG"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "stm32f411re",
+            "description": "Build using the stm32f411re configuration",
+            "configurePreset": "stm32f411re",
+            "jobs": 4
+        },
+        {
+            "name": "stm32f412zg",
+            "description": "Build using the stm32f412zg configuration",
+            "configurePreset": "stm32f412zg",
+            "jobs": 4
+        }
+    ]
+}

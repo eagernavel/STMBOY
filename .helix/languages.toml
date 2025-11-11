@@ -1,0 +1,11 @@
+[[language]]
+name = "c"
+language-servers = ["clangd"]
+indent = { tab-width = 4, unit = " " }
+
+[language-server.clangd]
+command = "clangd"
+args = [
+  "--log=verbose",
+  "--query-driver=/opt/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-*"
+]

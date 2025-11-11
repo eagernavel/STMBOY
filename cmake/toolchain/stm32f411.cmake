@@ -1,0 +1,16 @@
+#[====[
+    STM32F411 MCU toolchain file
+]====]
+
+if($ENV{STM32F411_TOOLCHAIN_INCLUDED})
+    return()
+endif()
+
+set(ENV{STM32F411_TOOLCHAIN_INCLUDED} true)
+
+set(LINKER_SCRIPT_DIR ${CMAKE_SOURCE_DIR}/ld)
+set(LINKER_SCRIPT_PRIMARY_FILE STM32F411RETX_FLASH.ld)
+set(LD_FLAGS "${LD_FLAGS} -T\"${LINKER_SCRIPT_PRIMARY_FILE}\" -L\"${LINKER_SCRIPT_DIR}\"")
+set(LD_FLAGS "${LD_FLAGS} --specs=nano.specs")
+
+include(${CMAKE_CURRENT_LIST_DIR}/cm4-fpu.cmake)
