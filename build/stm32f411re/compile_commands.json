@@ -1,0 +1,116 @@
+[
+{
+  "directory": "/home/ferran/Documentos/STMBOY/build/stm32f411re",
+  "command": "/usr/bin/arm-none-eabi-gcc -DSTM32F411xE -DUSE_FULL_ASSERT -DUSE_FULL_LL_DRIVER -I/home/ferran/Documentos/STMBOY/source/source -I/home/ferran/Documentos/STMBOY/lib/bsp/.. -I/home/ferran/Documentos/STMBOY/lib/platform/.. -I/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/../.. -I/home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/../.. -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/core -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/include -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/include -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -Wall -Wextra -Wpedantic -o source/CMakeFiles/firmware.dir/syscalls.c.obj -c /home/ferran/Documentos/STMBOY/source/syscalls.c",
+  "file": "/home/ferran/Documentos/STMBOY/source/syscalls.c",
+  "output": "source/CMakeFiles/firmware.dir/syscalls.c.obj"
+},
+{
+  "directory": "/home/ferran/Documentos/STMBOY/build/stm32f411re",
+  "command": "/usr/bin/arm-none-eabi-gcc -DSTM32F411xE -DUSE_FULL_ASSERT -DUSE_FULL_LL_DRIVER -I/home/ferran/Documentos/STMBOY/source/source -I/home/ferran/Documentos/STMBOY/lib/bsp/.. -I/home/ferran/Documentos/STMBOY/lib/platform/.. -I/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/../.. -I/home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/../.. -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/core -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/include -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/include -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -Wall -Wextra -Wpedantic -o source/CMakeFiles/firmware.dir/sysmem.c.obj -c /home/ferran/Documentos/STMBOY/source/sysmem.c",
+  "file": "/home/ferran/Documentos/STMBOY/source/sysmem.c",
+  "output": "source/CMakeFiles/firmware.dir/sysmem.c.obj"
+},
+{
+  "directory": "/home/ferran/Documentos/STMBOY/build/stm32f411re",
+  "command": "/usr/bin/arm-none-eabi-gcc -DSTM32F411xE -DUSE_FULL_ASSERT -DUSE_FULL_LL_DRIVER -I/home/ferran/Documentos/STMBOY/source/source -I/home/ferran/Documentos/STMBOY/lib/bsp/.. -I/home/ferran/Documentos/STMBOY/lib/platform/.. -I/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/../.. -I/home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/../.. -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/core -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/include -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/include -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -Wall -Wextra -Wpedantic -o source/CMakeFiles/firmware.dir/main.c.obj -c /home/ferran/Documentos/STMBOY/source/main.c",
+  "file": "/home/ferran/Documentos/STMBOY/source/main.c",
+  "output": "source/CMakeFiles/firmware.dir/main.c.obj"
+},
+{
+  "directory": "/home/ferran/Documentos/STMBOY/build/stm32f411re",
+  "command": "/usr/bin/arm-none-eabi-gcc -DSTM32F411xE -DUSE_FULL_ASSERT -DUSE_FULL_LL_DRIVER -I/home/ferran/Documentos/STMBOY/source/source -I/home/ferran/Documentos/STMBOY/lib/bsp/.. -I/home/ferran/Documentos/STMBOY/lib/platform/.. -I/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/../.. -I/home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/../.. -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/core -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/include -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/include -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -Wall -Wextra -Wpedantic -o source/CMakeFiles/firmware.dir/assert.c.obj -c /home/ferran/Documentos/STMBOY/source/assert.c",
+  "file": "/home/ferran/Documentos/STMBOY/source/assert.c",
+  "output": "source/CMakeFiles/firmware.dir/assert.c.obj"
+},
+{
+  "directory": "/home/ferran/Documentos/STMBOY/build/stm32f411re",
+  "command": "/usr/bin/arm-none-eabi-gcc -DSTM32F411xE -DUSE_FULL_ASSERT -DUSE_FULL_LL_DRIVER -I/home/ferran/Documentos/STMBOY/source/source -I/home/ferran/Documentos/STMBOY/lib/bsp/.. -I/home/ferran/Documentos/STMBOY/lib/platform/.. -I/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/../.. -I/home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/../.. -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/core -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/include -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/include -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -Wall -Wextra -Wpedantic -o source/CMakeFiles/firmware.dir/__/lib/bsp/bsp.c.obj -c /home/ferran/Documentos/STMBOY/lib/bsp/bsp.c",
+  "file": "/home/ferran/Documentos/STMBOY/lib/bsp/bsp.c",
+  "output": "source/CMakeFiles/firmware.dir/__/lib/bsp/bsp.c.obj"
+},
+{
+  "directory": "/home/ferran/Documentos/STMBOY/build/stm32f411re",
+  "command": "/usr/bin/arm-none-eabi-gcc -DSTM32F411xE -DUSE_FULL_ASSERT -DUSE_FULL_LL_DRIVER -I/home/ferran/Documentos/STMBOY/source/source -I/home/ferran/Documentos/STMBOY/lib/bsp/.. -I/home/ferran/Documentos/STMBOY/lib/platform/.. -I/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/../.. -I/home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/../.. -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/core -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/include -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/include -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -Wall -Wextra -Wpedantic -o source/CMakeFiles/firmware.dir/__/lib/platform/nucleof411re/platform_nucleof411re.c.obj -c /home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/platform_nucleof411re.c",
+  "file": "/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/platform_nucleof411re.c",
+  "output": "source/CMakeFiles/firmware.dir/__/lib/platform/nucleof411re/platform_nucleof411re.c.obj"
+},
+{
+  "directory": "/home/ferran/Documentos/STMBOY/build/stm32f411re",
+  "command": "/usr/bin/arm-none-eabi-gcc -DSTM32F411xE -DUSE_FULL_ASSERT -DUSE_FULL_LL_DRIVER -I/home/ferran/Documentos/STMBOY/source/source -I/home/ferran/Documentos/STMBOY/lib/bsp/.. -I/home/ferran/Documentos/STMBOY/lib/platform/.. -I/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/../.. -I/home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/../.. -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/core -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/include -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/include -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -Wall -Wextra -Wpedantic -o source/CMakeFiles/firmware.dir/__/lib/platform/nucleof411re/platform_nucleof411re_clock.c.obj -c /home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/platform_nucleof411re_clock.c",
+  "file": "/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/platform_nucleof411re_clock.c",
+  "output": "source/CMakeFiles/firmware.dir/__/lib/platform/nucleof411re/platform_nucleof411re_clock.c.obj"
+},
+{
+  "directory": "/home/ferran/Documentos/STMBOY/build/stm32f411re",
+  "command": "/usr/bin/arm-none-eabi-gcc -DSTM32F411xE -DUSE_FULL_ASSERT -DUSE_FULL_LL_DRIVER -I/home/ferran/Documentos/STMBOY/source/source -I/home/ferran/Documentos/STMBOY/lib/bsp/.. -I/home/ferran/Documentos/STMBOY/lib/platform/.. -I/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/../.. -I/home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/../.. -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/core -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/include -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/include -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -Wall -Wextra -Wpedantic -o source/CMakeFiles/firmware.dir/__/lib/platform/nucleof411re/platform_nucleof411re_serial.c.obj -c /home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/platform_nucleof411re_serial.c",
+  "file": "/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/platform_nucleof411re_serial.c",
+  "output": "source/CMakeFiles/firmware.dir/__/lib/platform/nucleof411re/platform_nucleof411re_serial.c.obj"
+},
+{
+  "directory": "/home/ferran/Documentos/STMBOY/build/stm32f411re",
+  "command": "/usr/bin/arm-none-eabi-gcc -DSTM32F411xE -DUSE_FULL_ASSERT -DUSE_FULL_LL_DRIVER -I/home/ferran/Documentos/STMBOY/source/source -I/home/ferran/Documentos/STMBOY/lib/bsp/.. -I/home/ferran/Documentos/STMBOY/lib/platform/.. -I/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/../.. -I/home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/../.. -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/core -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/include -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/include -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -Wall -Wextra -Wpedantic -o source/CMakeFiles/firmware.dir/__/lib/platform/nucleof411re/platform_nucleof411re_ili9486.c.obj -c /home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/platform_nucleof411re_ili9486.c",
+  "file": "/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/platform_nucleof411re_ili9486.c",
+  "output": "source/CMakeFiles/firmware.dir/__/lib/platform/nucleof411re/platform_nucleof411re_ili9486.c.obj"
+},
+{
+  "directory": "/home/ferran/Documentos/STMBOY/build/stm32f411re",
+  "command": "/usr/bin/arm-none-eabi-gcc -DSTM32F411xE -DUSE_FULL_ASSERT -DUSE_FULL_LL_DRIVER -I/home/ferran/Documentos/STMBOY/source/source -I/home/ferran/Documentos/STMBOY/lib/bsp/.. -I/home/ferran/Documentos/STMBOY/lib/platform/.. -I/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/../.. -I/home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/../.. -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/core -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/include -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/include -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -Wall -Wextra -Wpedantic -o source/CMakeFiles/firmware.dir/__/lib/platform/component/ili9486/ili9486.c.obj -c /home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/ili9486.c",
+  "file": "/home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/ili9486.c",
+  "output": "source/CMakeFiles/firmware.dir/__/lib/platform/component/ili9486/ili9486.c.obj"
+},
+{
+  "directory": "/home/ferran/Documentos/STMBOY/build/stm32f411re",
+  "command": "/usr/bin/arm-none-eabi-gcc -DSTM32F411xE -DUSE_FULL_ASSERT -DUSE_FULL_LL_DRIVER -I/home/ferran/Documentos/STMBOY/source/source -I/home/ferran/Documentos/STMBOY/lib/bsp/.. -I/home/ferran/Documentos/STMBOY/lib/platform/.. -I/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/../.. -I/home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/../.. -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/core -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/include -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/include -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -Wall -Wextra -Wpedantic -o source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/cmsis/device/source/system_stm32f4xx.c.obj -c /home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/source/system_stm32f4xx.c",
+  "file": "/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/source/system_stm32f4xx.c",
+  "output": "source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/cmsis/device/source/system_stm32f4xx.c.obj"
+},
+{
+  "directory": "/home/ferran/Documentos/STMBOY/build/stm32f411re",
+  "command": "/usr/bin/arm-none-eabi-gcc -DSTM32F411xE -DUSE_FULL_ASSERT -DUSE_FULL_LL_DRIVER -I/home/ferran/Documentos/STMBOY/source/source -I/home/ferran/Documentos/STMBOY/lib/bsp/.. -I/home/ferran/Documentos/STMBOY/lib/platform/.. -I/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/../.. -I/home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/../.. -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/core -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/include -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/include -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -x assembler-with-cpp -g -Wall -Wextra -Wpedantic -o source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/cmsis/device/startup/startup_stm32f411xe.s.obj -c /home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/startup/startup_stm32f411xe.s",
+  "file": "/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/startup/startup_stm32f411xe.s",
+  "output": "source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/cmsis/device/startup/startup_stm32f411xe.s.obj"
+},
+{
+  "directory": "/home/ferran/Documentos/STMBOY/build/stm32f411re",
+  "command": "/usr/bin/arm-none-eabi-gcc -DSTM32F411xE -DUSE_FULL_ASSERT -DUSE_FULL_LL_DRIVER -I/home/ferran/Documentos/STMBOY/source/source -I/home/ferran/Documentos/STMBOY/lib/bsp/.. -I/home/ferran/Documentos/STMBOY/lib/platform/.. -I/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/../.. -I/home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/../.. -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/core -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/include -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/include -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -Wall -Wextra -Wpedantic -o source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_exti.c.obj -c /home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_exti.c",
+  "file": "/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_exti.c",
+  "output": "source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_exti.c.obj"
+},
+{
+  "directory": "/home/ferran/Documentos/STMBOY/build/stm32f411re",
+  "command": "/usr/bin/arm-none-eabi-gcc -DSTM32F411xE -DUSE_FULL_ASSERT -DUSE_FULL_LL_DRIVER -I/home/ferran/Documentos/STMBOY/source/source -I/home/ferran/Documentos/STMBOY/lib/bsp/.. -I/home/ferran/Documentos/STMBOY/lib/platform/.. -I/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/../.. -I/home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/../.. -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/core -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/include -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/include -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -Wall -Wextra -Wpedantic -o source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_gpio.c.obj -c /home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_gpio.c",
+  "file": "/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_gpio.c",
+  "output": "source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_gpio.c.obj"
+},
+{
+  "directory": "/home/ferran/Documentos/STMBOY/build/stm32f411re",
+  "command": "/usr/bin/arm-none-eabi-gcc -DSTM32F411xE -DUSE_FULL_ASSERT -DUSE_FULL_LL_DRIVER -I/home/ferran/Documentos/STMBOY/source/source -I/home/ferran/Documentos/STMBOY/lib/bsp/.. -I/home/ferran/Documentos/STMBOY/lib/platform/.. -I/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/../.. -I/home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/../.. -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/core -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/include -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/include -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -Wall -Wextra -Wpedantic -o source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_pwr.c.obj -c /home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_pwr.c",
+  "file": "/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_pwr.c",
+  "output": "source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_pwr.c.obj"
+},
+{
+  "directory": "/home/ferran/Documentos/STMBOY/build/stm32f411re",
+  "command": "/usr/bin/arm-none-eabi-gcc -DSTM32F411xE -DUSE_FULL_ASSERT -DUSE_FULL_LL_DRIVER -I/home/ferran/Documentos/STMBOY/source/source -I/home/ferran/Documentos/STMBOY/lib/bsp/.. -I/home/ferran/Documentos/STMBOY/lib/platform/.. -I/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/../.. -I/home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/../.. -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/core -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/include -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/include -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -Wall -Wextra -Wpedantic -o source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_rcc.c.obj -c /home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_rcc.c",
+  "file": "/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_rcc.c",
+  "output": "source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_rcc.c.obj"
+},
+{
+  "directory": "/home/ferran/Documentos/STMBOY/build/stm32f411re",
+  "command": "/usr/bin/arm-none-eabi-gcc -DSTM32F411xE -DUSE_FULL_ASSERT -DUSE_FULL_LL_DRIVER -I/home/ferran/Documentos/STMBOY/source/source -I/home/ferran/Documentos/STMBOY/lib/bsp/.. -I/home/ferran/Documentos/STMBOY/lib/platform/.. -I/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/../.. -I/home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/../.. -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/core -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/include -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/include -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -Wall -Wextra -Wpedantic -o source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_tim.c.obj -c /home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_tim.c",
+  "file": "/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_tim.c",
+  "output": "source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_tim.c.obj"
+},
+{
+  "directory": "/home/ferran/Documentos/STMBOY/build/stm32f411re",
+  "command": "/usr/bin/arm-none-eabi-gcc -DSTM32F411xE -DUSE_FULL_ASSERT -DUSE_FULL_LL_DRIVER -I/home/ferran/Documentos/STMBOY/source/source -I/home/ferran/Documentos/STMBOY/lib/bsp/.. -I/home/ferran/Documentos/STMBOY/lib/platform/.. -I/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/../.. -I/home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/../.. -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/core -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/include -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/include -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -Wall -Wextra -Wpedantic -o source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_usart.c.obj -c /home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_usart.c",
+  "file": "/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_usart.c",
+  "output": "source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_usart.c.obj"
+},
+{
+  "directory": "/home/ferran/Documentos/STMBOY/build/stm32f411re",
+  "command": "/usr/bin/arm-none-eabi-gcc -DSTM32F411xE -DUSE_FULL_ASSERT -DUSE_FULL_LL_DRIVER -I/home/ferran/Documentos/STMBOY/source/source -I/home/ferran/Documentos/STMBOY/lib/bsp/.. -I/home/ferran/Documentos/STMBOY/lib/platform/.. -I/home/ferran/Documentos/STMBOY/lib/platform/nucleof411re/../.. -I/home/ferran/Documentos/STMBOY/lib/platform/component/ili9486/../.. -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/core -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/cmsis/device/include -I/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/include -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fdata-sections -ffunction-sections -O0 -g3 -std=gnu11 -Wall -Wextra -Wpedantic -o source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_utils.c.obj -c /home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_utils.c",
+  "file": "/home/ferran/Documentos/STMBOY/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_utils.c",
+  "output": "source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_utils.c.obj"
+}
+]

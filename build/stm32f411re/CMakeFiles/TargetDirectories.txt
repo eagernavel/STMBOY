@@ -1,0 +1,17 @@
+/home/ferran/Documentos/STMBOY/build/stm32f411re/CMakeFiles/edit_cache.dir
+/home/ferran/Documentos/STMBOY/build/stm32f411re/CMakeFiles/rebuild_cache.dir
+/home/ferran/Documentos/STMBOY/build/stm32f411re/third-party/stm32_driver/CMakeFiles/edit_cache.dir
+/home/ferran/Documentos/STMBOY/build/stm32f411re/third-party/stm32_driver/CMakeFiles/rebuild_cache.dir
+/home/ferran/Documentos/STMBOY/build/stm32f411re/lib/CMakeFiles/edit_cache.dir
+/home/ferran/Documentos/STMBOY/build/stm32f411re/lib/CMakeFiles/rebuild_cache.dir
+/home/ferran/Documentos/STMBOY/build/stm32f411re/lib/platform/CMakeFiles/edit_cache.dir
+/home/ferran/Documentos/STMBOY/build/stm32f411re/lib/platform/CMakeFiles/rebuild_cache.dir
+/home/ferran/Documentos/STMBOY/build/stm32f411re/lib/platform/component/ili9486/CMakeFiles/edit_cache.dir
+/home/ferran/Documentos/STMBOY/build/stm32f411re/lib/platform/component/ili9486/CMakeFiles/rebuild_cache.dir
+/home/ferran/Documentos/STMBOY/build/stm32f411re/lib/platform/nucleof411re/CMakeFiles/edit_cache.dir
+/home/ferran/Documentos/STMBOY/build/stm32f411re/lib/platform/nucleof411re/CMakeFiles/rebuild_cache.dir
+/home/ferran/Documentos/STMBOY/build/stm32f411re/lib/bsp/CMakeFiles/edit_cache.dir
+/home/ferran/Documentos/STMBOY/build/stm32f411re/lib/bsp/CMakeFiles/rebuild_cache.dir
+/home/ferran/Documentos/STMBOY/build/stm32f411re/source/CMakeFiles/firmware.dir
+/home/ferran/Documentos/STMBOY/build/stm32f411re/source/CMakeFiles/edit_cache.dir
+/home/ferran/Documentos/STMBOY/build/stm32f411re/source/CMakeFiles/rebuild_cache.dir

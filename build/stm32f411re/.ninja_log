@@ -1,0 +1,25 @@
+# ninja log v5
+2	79	1763142272874635232	source/CMakeFiles/firmware.dir/assert.c.obj	69cf92f26b2cf214
+1	79	1763142272875635220	source/CMakeFiles/firmware.dir/main.c.obj	da9daf3cfdfb1698
+1	84	1763142272879635172	source/CMakeFiles/firmware.dir/sysmem.c.obj	8fca7d08ba29b55e
+1	97	1763142272894634991	source/CMakeFiles/firmware.dir/syscalls.c.obj	481039a1259b906e
+79	106	1763142272902634895	source/CMakeFiles/firmware.dir/__/lib/bsp/bsp.c.obj	c7c04c5e5f3f9527
+106	137	1763142272934634509	source/CMakeFiles/firmware.dir/__/lib/platform/nucleof411re/platform_nucleof411re_ili9486.c.obj	e53adb1444ea36a8
+137	176	1763142272971634064	source/CMakeFiles/firmware.dir/__/lib/platform/component/ili9486/ili9486.c.obj	c93734617ef9c4db
+79	214	1763142273008633618	source/CMakeFiles/firmware.dir/__/lib/platform/nucleof411re/platform_nucleof411re.c.obj	e8df358c98a70f8a
+214	247	1763142273043633196	source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/cmsis/device/startup/startup_stm32f411xe.s.obj	16d6d347b9ad57e
+85	258	1763142273050633112	source/CMakeFiles/firmware.dir/__/lib/platform/nucleof411re/platform_nucleof411re_clock.c.obj	7e2ad9033ed7334c
+97	280	1763142273076632799	source/CMakeFiles/firmware.dir/__/lib/platform/nucleof411re/platform_nucleof411re_serial.c.obj	53eefd11ef4bfd41
+176	324	1763142273118632293	source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/cmsis/device/source/system_stm32f4xx.c.obj	f86cfd6986371d43
+258	396	1763142273192631402	source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_gpio.c.obj	977bb66db61c7af2
+247	396	1763142273193631390	source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_exti.c.obj	d853b44ddec03767
+280	406	1763142273202631282	source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_pwr.c.obj	47d4d00eb9104a40
+324	456	1763142273249630716	source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_rcc.c.obj	6813cc86b4b17e13
+396	517	1763142273310629981	source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_usart.c.obj	f90f6f71e9e8a79a
+406	536	1763142273333629704	source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_utils.c.obj	b243120a231f73d3
+396	578	1763142273372629234	source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_tim.c.obj	3af324af8fbc86e5
+578	665	1763142273453628259	source/firmware.elf	2d659af6eb2d1486
+0	9	0	CMakeFiles/clean.additional	ef993b15a92b8f11
+10	13	0	clean	a31eedcededa8236
+1	10	0	CMakeFiles/clean.additional	ef993b15a92b8f11
+10	15	0	clean	a31eedcededa8236

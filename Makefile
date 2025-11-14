@@ -10,4 +10,4 @@ configure:
 	cmake --preset $(CMAKE_PRESET)
 
 flash:
-	sudo /opt/xpack-openocd-0.12.0-7/bin/openocd -f "interface/stlink.cfg" -f "target/stm32f4x.cfg" -c "program build/$(CMAKE_PRESET)/source/firmware.bin verify reset exit 0x08000000"
+	sudo /usr/bin/openocd -f "interface/stlink.cfg" -f "target/stm32f4x.cfg" -c "program build/$(CMAKE_PRESET)/source/firmware.bin verify reset exit 0x08000000"
