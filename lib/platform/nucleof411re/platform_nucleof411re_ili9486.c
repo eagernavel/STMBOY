@@ -8,12 +8,12 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define ILI9486_RES_GPIO GPIOF
+#define ILI9486_RES_GPIO GPIOC
 #define ILI9486_RES_PIN  LL_GPIO_PIN_0
 
 static void prv_init_ili9486_interface_pins(void)
 {
-    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOF);
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOC);
     
     LL_GPIO_InitTypeDef gpio = {0};
     gpio.Pin = ILI9486_RES_PIN;
