@@ -39,7 +39,10 @@ static void prv_init_ili9486_interface_pins(void)
     gpio.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
     gpio.Pull = LL_GPIO_PULL_NO;
 
-    LL_GPIO_Init(ILI9486_RES_GPIO, &gpio);
+    LL_GPIO_Init(ILI9486_RES_GPIO, &gpio);  //inicializamos GPIOC
+    LL_GPIO_Init(ILI9486_CS_GPIO, &gpio);  //GPIOB
+    LL_GPIO_Init(ILI9486_DCX_GPIO, &gpio); //GPIOA
+
     LL_GPIO_SetOutputPin(ILI9486_RES_GPIO, ILI9486_RES_PIN); //RES = 1
     LL_GPIO_SetOutputPin(ILI9486_CS_GPIO,  ILI9486_CS_PIN); // CS = 1 --> ACTIVO ESTA EN MODO BAJO
     LL_GPIO_SetOutputPin(ILI9486_DCX_GPIO, ILI9486_DCX_PIN);// DCX = 1 --> MODO DATA
@@ -77,7 +80,7 @@ static void prv_dcx_pin_reset(void)
 
 static void prv_wr_pin_set(void)
 {
-    LL_GPIO_SetOutputPin(ILI9486_WR_GPIO, ILI9486_WR_PIN); //le dice que tipo de dato es, COMMAND o DATA
+    LL_GPIO_SetOutputPin(ILI9486_WR_GPIO, ILI9486_WR_PIN); //
 }
 
 static void prv_wr_pin_reset(void)
@@ -87,12 +90,12 @@ static void prv_wr_pin_reset(void)
 
 static void prv_rd_pin_set(void)
 {
-    LL_GPIO_SetOutputPin(ILI9486_DCX_GPIO, ILI9486_DCX_PIN); //le dice que tipo de dato es, COMMAND o DATA
+    LL_GPIO_SetOutputPin(ILI9486_RD_GPIO, ILI9486_RD_PIN); //
 }
 
 static void prv_rd_pin_reset(void)
 {
-    LL_GPIO_ResetOutputPin(ILI9486_DCX_GPIO, ILI9486_DCX_PIN);
+    LL_GPIO_ResetOutputPin(ILI9486_RD_GPIO, ILI9486_RD_PIN);
 }
 
 

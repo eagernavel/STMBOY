@@ -28,3 +28,5 @@
 2	144	1763320071558522929	source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_usart.c.obj	f90f6f71e9e8a79a
 2	158	1763320071569522821	source/CMakeFiles/firmware.dir/__/third-party/stm32_driver/stm32_ll_drivers/source/stm32f4xx_ll_utils.c.obj	b243120a231f73d3
 158	237	1763320071641522115	source/firmware.elf	2d659af6eb2d1486
+3	32	0	CMakeFiles/clean.additional	ef993b15a92b8f11
+32	35	0	clean	a31eedcededa8236
