@@ -1,0 +1,33 @@
+ Carpetas de compilación
+build/
+Build/
+Debug/
+Release/
+
+# Archivos objeto y compilados
+*.o
+*.obj
+*.elf
+*.bin
+*.hex
+*.map
+*.lst
+*.su
+*.d
+
+# Archivos de IDE
+.vscode/settings.json
+.vscode/launch.json
+.settings/
+*.workspace
+*.cproject
+*.project
+
+# Archivos temporales
+*.tmp
+*.bak
+*~
+.DS_Store
+
+# Archivos de depuración
+*.log
