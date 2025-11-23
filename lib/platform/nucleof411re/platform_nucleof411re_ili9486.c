@@ -50,16 +50,20 @@ static void prv_init_ili9486_interface_pins(void)
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
     
     LL_GPIO_InitTypeDef gpio = {0};
-    gpio.Pin = ILI9486_RES_PIN;
     gpio.Mode = LL_GPIO_MODE_OUTPUT;
     gpio.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
     gpio.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
     gpio.Pull = LL_GPIO_PULL_NO;
 
-    LL_GPIO_Init(ILI9486_RES_GPIO, &gpio);  //inicializamos GPIOC
-    LL_GPIO_Init(ILI9486_CS_GPIO, &gpio);  //GPIOB
-    LL_GPIO_Init(ILI9486_DCX_GPIO, &gpio); //GPIOA
+    gpio.Pin = ILI9486_RES_PIN | ILI9486_DB1_PIN;
+    LL_GPIO_Init(GPIOC, &gpio);  //GPIOC
 
+    gpio.Pin = ILI9486_WR_PIN | ILI9486_RD_PIN | ILI9486_DB0_PIN | ILI9486_DB2_PIN | ILI9486_DB7_PIN;
+    LL_GPIO_Init(GPIOA, &gpio);  //GPIOA
+
+    gpio.Pin = ILI9486_CS_PIN | ILI9486_DB3_PIN | ILI9486_DB4_PIN | ILI9486_DB5_PIN | ILI9486_DB6_PIN;
+    LL_GPIO_Init(GPIOB, &gpio);  //GPIOB
+    
 
     // ESta parte es para definir un estado en concreto al inicio
 
@@ -118,6 +122,50 @@ static void prv_rd_pin_set(void)
 static void prv_rd_pin_reset(void)
 {
     LL_GPIO_ResetOutputPin(ILI9486_RD_GPIO, ILI9486_RD_PIN);
+}
+
+static void prv_db70_write(uint8_t data)
+{
+    if (data & (1 << 0))
+        LL_GPIO_SetOutputPin(ILI9486_DB0_GPIO, ILI9486_DB0_PIN);
+    else
+        LL_GPIO_ResetOutputPin(ILI9486_DB0_GPIO, ILI9486_DB0_PIN);
+
+    if (data & (1 << 1))
+        LL_GPIO_SetOutputPin(ILI9486_DB1_GPIO, ILI9486_DB1_PIN);
+    else
+        LL_GPIO_ResetOutputPin(ILI9486_DB1_GPIO, ILI9486_DB1_PIN);
+
+    if (data & (1 << 2))
+        LL_GPIO_SetOutputPin(ILI9486_DB2_GPIO, ILI9486_DB2_PIN);
+    else
+        LL_GPIO_ResetOutputPin(ILI9486_DB2_GPIO, ILI9486_DB2_PIN);
+
+    if (data & (1 << 3))
+        LL_GPIO_SetOutputPin(ILI9486_DB3_GPIO, ILI9486_DB3_PIN);
+    else
+        LL_GPIO_ResetOutputPin(ILI9486_DB3_GPIO, ILI9486_DB3_PIN);
+
+    if (data & (1 << 4))
+        LL_GPIO_SetOutputPin(ILI9486_DB4_GPIO, ILI9486_DB4_PIN);
+    else
+        LL_GPIO_ResetOutputPin(ILI9486_DB4_GPIO, ILI9486_DB4_PIN);
+
+    if (data & (1 << 5))
+        LL_GPIO_SetOutputPin(ILI9486_DB5_GPIO, ILI9486_DB5_PIN);
+    else
+        LL_GPIO_ResetOutputPin(ILI9486_DB5_GPIO, ILI9486_DB5_PIN);
+
+    if (data & (1 << 6))
+        LL_GPIO_SetOutputPin(ILI9486_DB6_GPIO, ILI9486_DB6_PIN);
+    else
+        LL_GPIO_ResetOutputPin(ILI9486_DB6_GPIO, ILI9486_DB6_PIN);
+        
+    if (data & (1 << 7))
+        LL_GPIO_SetOutputPin(ILI9486_DB7_GPIO, ILI9486_DB7_PIN);
+    else
+        LL_GPIO_ResetOutputPin(ILI9486_DB7_GPIO, ILI9486_DB7_PIN);  
+        // TODO implementation of DB[7:0] write function
 }
 
 
