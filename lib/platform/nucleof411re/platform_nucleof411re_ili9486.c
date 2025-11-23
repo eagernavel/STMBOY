@@ -43,6 +43,8 @@ static void prv_init_ili9486_interface_pins(void)
     LL_GPIO_Init(ILI9486_CS_GPIO, &gpio);  //GPIOB
     LL_GPIO_Init(ILI9486_DCX_GPIO, &gpio); //GPIOA
 
+    // ESta parte es para definir un estado en concreto al inicio
+
     LL_GPIO_SetOutputPin(ILI9486_RES_GPIO, ILI9486_RES_PIN); //RES = 1
     LL_GPIO_SetOutputPin(ILI9486_CS_GPIO,  ILI9486_CS_PIN); // CS = 1 --> ACTIVO ESTA EN MODO BAJO
     LL_GPIO_SetOutputPin(ILI9486_DCX_GPIO, ILI9486_DCX_PIN);// DCX = 1 --> MODO DATA
