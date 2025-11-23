@@ -23,6 +23,23 @@
 #define ILI9486_RD_GPIO  GPIOA
 #define ILI9486_RD_PIN  LL_GPIO_PIN_0 //PA0
 
+#define ILI9486_DB0_GPIO GPIOA
+#define ILI9486_DB0_PIN  LL_GPIO_PIN_9  //PA9
+#define ILI9486_DB1_GPIO GPIOC
+#define ILI9486_DB1_PIN  LL_GPIO_PIN_7  //PC7
+#define ILI9486_DB2_GPIO GPIOA
+#define ILI9486_DB2_PIN  LL_GPIO_PIN_10  //PA10
+#define ILI9486_DB3_GPIO GPIOB
+#define ILI9486_DB3_PIN  LL_GPIO_PIN_3 //PB3
+#define ILI9486_DB4_GPIO GPIOB
+#define ILI9486_DB4_PIN  LL_GPIO_PIN_5 //PB5
+#define ILI9486_DB5_GPIO GPIOB
+#define ILI9486_DB5_PIN  LL_GPIO_PIN_4 //PB4
+#define ILI9486_DB6_GPIO GPIOB
+#define ILI9486_DB6_PIN  LL_GPIO_PIN_10 //PA10
+#define ILI9486_DB7_GPIO GPIOA
+#define ILI9486_DB7_PIN  LL_GPIO_PIN_8 //PA8
+
 
 
 
@@ -43,11 +60,14 @@ static void prv_init_ili9486_interface_pins(void)
     LL_GPIO_Init(ILI9486_CS_GPIO, &gpio);  //GPIOB
     LL_GPIO_Init(ILI9486_DCX_GPIO, &gpio); //GPIOA
 
+
     // ESta parte es para definir un estado en concreto al inicio
 
     LL_GPIO_SetOutputPin(ILI9486_RES_GPIO, ILI9486_RES_PIN); //RES = 1
     LL_GPIO_SetOutputPin(ILI9486_CS_GPIO,  ILI9486_CS_PIN); // CS = 1 --> ACTIVO ESTA EN MODO BAJO
-    LL_GPIO_SetOutputPin(ILI9486_DCX_GPIO, ILI9486_DCX_PIN);// DCX = 1 --> MODO DATA
+    LL_GPIO_SetOutputPin(ILI9486_DCX_GPIO, ILI9486_DCX_PIN); // DCX = 1 --> MODO DATA
+    LL_GPIO_SetOutputPin(ILI9486_WR_GPIO,  ILI9486_WR_PIN);  // WR = 1 (inactivo)
+    LL_GPIO_SetOutputPin(ILI9486_RD_GPIO,  ILI9486_RD_PIN);
 }
 
 static void prv_res_pin_set(void)
