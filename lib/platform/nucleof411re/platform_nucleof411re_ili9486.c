@@ -71,7 +71,45 @@ static void prv_init_ili9486_interface_pins(void)
     LL_GPIO_SetOutputPin(ILI9486_CS_GPIO,  ILI9486_CS_PIN); // CS = 1 --> ACTIVO ESTA EN MODO BAJO
     LL_GPIO_SetOutputPin(ILI9486_DCX_GPIO, ILI9486_DCX_PIN); // DCX = 1 --> MODO DATA
     LL_GPIO_SetOutputPin(ILI9486_WR_GPIO,  ILI9486_WR_PIN);  // WR = 1 (inactivo)
-    LL_GPIO_SetOutputPin(ILI9486_RD_GPIO,  ILI9486_RD_PIN);
+    LL_GPIO_SetOutputPin(ILI9486_RD_GPIO,  ILI9486_RD_PIN); // RD = 1 (inactivo)
+}
+
+static void prv_db70_set_as_outputs(void)
+{
+    LL_GPIO_InitTypeDef gpio = {0};
+    gpio.Mode       = LL_GPIO_MODE_OUTPUT;
+    gpio.Speed      = LL_GPIO_SPEED_FREQ_VERY_HIGH;
+    gpio.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+    gpio.Pull       = LL_GPIO_PULL_NO;
+
+    gpio.Pin = ILI9486_DB1_PIN;
+    LL_GPIO_Init(GPIOC, &gpio);  //GPIOC
+
+    gpio.Pin =ILI9486_DB0_PIN | ILI9486_DB2_PIN | ILI9486_DB7_PIN;
+    LL_GPIO_Init(GPIOA, &gpio);  //GPIOA
+
+    gpio.Pin = ILI9486_DB3_PIN | ILI9486_DB4_PIN | ILI9486_DB5_PIN | ILI9486_DB6_PIN;
+    LL_GPIO_Init(GPIOB, &gpio);  //GPIOB
+
+}
+
+static void prv_db70_set_as_inputs(void)
+{
+    LL_GPIO_InitTypeDef gpio = {0};
+    gpio.Mode       = LL_GPIO_MODE_INPUT;
+    gpio.Speed      = LL_GPIO_SPEED_FREQ_VERY_HIGH;
+    gpio.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+    gpio.Pull       = LL_GPIO_PULL_NO;
+
+    gpio.Pin = ILI9486_DB1_PIN;
+    LL_GPIO_Init(GPIOC, &gpio);  //GPIOC
+
+    gpio.Pin =ILI9486_DB0_PIN | ILI9486_DB2_PIN | ILI9486_DB7_PIN;
+    LL_GPIO_Init(GPIOA, &gpio);  //GPIOA
+
+    gpio.Pin = ILI9486_DB3_PIN | ILI9486_DB4_PIN | ILI9486_DB5_PIN | ILI9486_DB6_PIN;
+    LL_GPIO_Init(GPIOB, &gpio);  //GPIOB
+
 }
 
 static void prv_res_pin_set(void)
@@ -160,15 +198,48 @@ static void prv_db70_write(uint8_t data)
         LL_GPIO_SetOutputPin(ILI9486_DB6_GPIO, ILI9486_DB6_PIN);
     else
         LL_GPIO_ResetOutputPin(ILI9486_DB6_GPIO, ILI9486_DB6_PIN);
-        
+
     if (data & (1 << 7))
         LL_GPIO_SetOutputPin(ILI9486_DB7_GPIO, ILI9486_DB7_PIN);
     else
         LL_GPIO_ResetOutputPin(ILI9486_DB7_GPIO, ILI9486_DB7_PIN);  
-        // TODO implementation of DB[7:0] write function
+      
 }
 
+static uint8_t prv_db70_read(void)
+{
+    uint8_t data = 0;
+    prv_db70_set_as_inputs();
 
+    LL_GPIO_ResetOutputPin(ILI9486_RD_GPIO, ILI9486_RD_PIN); // Activar señal de lectura (RD = 0)
+
+    if (LL_GPIO_IsInputPinSet(ILI9486_DB0_GPIO, ILI9486_DB0_PIN))
+        data |= (1 << 0);
+    if (LL_GPIO_IsInputPinSet(ILI9486_DB1_GPIO, ILI9486_DB1_PIN))
+        data |= (1 << 1);
+    if (LL_GPIO_IsInputPinSet(ILI9486_DB2_GPIO, ILI9486_DB2_PIN))
+        data |= (1 << 2);
+    if (LL_GPIO_IsInputPinSet(ILI9486_DB3_GPIO, ILI9486_DB3_PIN))
+        data |= (1 << 3);
+    if (LL_GPIO_IsInputPinSet(ILI9486_DB4_GPIO, ILI9486_DB4_PIN))
+        data |= (1 << 4);
+    if (LL_GPIO_IsInputPinSet(ILI9486_DB5_GPIO, ILI9486_DB5_PIN))
+        data |= (1 << 5);
+    if (LL_GPIO_IsInputPinSet(ILI9486_DB6_GPIO, ILI9486_DB6_PIN))
+        data |= (1 << 6);
+    if (LL_GPIO_IsInputPinSet(ILI9486_DB7_GPIO, ILI9486_DB7_PIN))
+        data |= (1 << 7);
+
+    LL_GPIO_ResetOutputPin(ILI9486_RD_GPIO, ILI9486_RD_PIN); // Desactivar señal de lectura (RD = 1)
+
+    prv_db70_set_as_outputs();
+
+    return data;
+    // Para conseguir esto necesitamos varias cosas:
+    // 1. Configurar los pines de datos como entrada
+    // 2. Leer el estado de cada pin y construir el byte de datos
+    // 3. Volver a configurar los pines de datos como salida (si es necesario para futuras escrituras)
+}
 // TODO implementation of 8 bit parallel interface functions
 
 void platform_nucleof411re_ili9486_init(void)
@@ -187,7 +258,7 @@ void platform_nucleof411re_ili9486_init(void)
         .wrx_pin_reset = prv_cs_pin_reset,
         .rdx_pin_set = prv_cs_pin_set,
         .rdx_pin_reset = prv_cs_pin_reset,
-        .db70_write = NULL,
+        .db70_write = prv_db70_write,
         .db70_read = NULL,
     };
     ili9486_init(interface);
