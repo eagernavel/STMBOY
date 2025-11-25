@@ -259,7 +259,7 @@ void platform_nucleof411re_ili9486_init(void)
         .rdx_pin_set = prv_cs_pin_set,
         .rdx_pin_reset = prv_cs_pin_reset,
         .db70_write = prv_db70_write,
-        .db70_read = NULL,
+        .db70_read = prv_db70_read,
     };
     ili9486_init(interface);
 }
