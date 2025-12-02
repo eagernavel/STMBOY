@@ -36,7 +36,7 @@
 #define ILI9486_DB5_GPIO GPIOB
 #define ILI9486_DB5_PIN  LL_GPIO_PIN_4 //PB4
 #define ILI9486_DB6_GPIO GPIOB
-#define ILI9486_DB6_PIN  LL_GPIO_PIN_10 //PA10
+#define ILI9486_DB6_PIN  LL_GPIO_PIN_10 //PB10
 #define ILI9486_DB7_GPIO GPIOA
 #define ILI9486_DB7_PIN  LL_GPIO_PIN_8 //PA8
 
@@ -58,7 +58,7 @@ static void prv_init_ili9486_interface_pins(void)
     gpio.Pin = ILI9486_RES_PIN | ILI9486_DB1_PIN;
     LL_GPIO_Init(GPIOC, &gpio);  //GPIOC
 
-    gpio.Pin = ILI9486_WR_PIN | ILI9486_RD_PIN | ILI9486_DB0_PIN | ILI9486_DB2_PIN | ILI9486_DB7_PIN;
+    gpio.Pin = ILI9486_WR_PIN | ILI9486_RD_PIN | ILI9486_DB0_PIN | ILI9486_DB2_PIN | ILI9486_DB7_PIN | ILI9486_DCX_PIN;
     LL_GPIO_Init(GPIOA, &gpio);  //GPIOA
 
     gpio.Pin = ILI9486_CS_PIN | ILI9486_DB3_PIN | ILI9486_DB4_PIN | ILI9486_DB5_PIN | ILI9486_DB6_PIN;
@@ -230,7 +230,7 @@ static uint8_t prv_db70_read(void)
     if (LL_GPIO_IsInputPinSet(ILI9486_DB7_GPIO, ILI9486_DB7_PIN))
         data |= (1 << 7);
 
-    LL_GPIO_ResetOutputPin(ILI9486_RD_GPIO, ILI9486_RD_PIN); // Desactivar señal de lectura (RD = 1)
+    LL_GPIO_SetOutputPin(ILI9486_RD_GPIO, ILI9486_RD_PIN); // Desactivar señal de lectura (RD = 1)
 
     prv_db70_set_as_outputs();
 
@@ -255,9 +255,9 @@ void platform_nucleof411re_ili9486_init(void)
         .dcx_pin_set = prv_dcx_pin_set,
         .dcx_pin_reset = prv_dcx_pin_reset,
         .wrx_pin_set = prv_wr_pin_set,
-        .wrx_pin_reset = prv_cs_pin_reset,
-        .rdx_pin_set = prv_cs_pin_set,
-        .rdx_pin_reset = prv_cs_pin_reset,
+        .wrx_pin_reset = prv_wr_pin_reset,
+        .rdx_pin_set = prv_rd_pin_set,
+        .rdx_pin_reset = prv_rd_pin_reset,
         .db70_write = prv_db70_write,
         .db70_read = prv_db70_read,
     };
