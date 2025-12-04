@@ -51,7 +51,6 @@ void platform_nucleof411re_serial_init(const platform_nucleof411re_serial_Config
     init_uart(config.uart_config);
 }
 
-/* Overwrite write function for printf support */
 int _write(int file, char *ptr, int len)
 {
     (void)file;

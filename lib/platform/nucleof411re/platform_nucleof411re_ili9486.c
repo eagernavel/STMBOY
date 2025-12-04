@@ -139,12 +139,12 @@ static void prv_dcx_pin_set(void)
 
 static void prv_dcx_pin_reset(void)
 {
-    LL_GPIO_ResetOutputPin(ILI9486_DCX_GPIO, ILI9486_DCX_PIN);
+    LL_GPIO_ResetOutputPin(ILI9486_DCX_GPIO, ILI9486_DCX_PIN); 
 }
 
 static void prv_wr_pin_set(void)
 {
-    LL_GPIO_SetOutputPin(ILI9486_WR_GPIO, ILI9486_WR_PIN); //
+    LL_GPIO_SetOutputPin(ILI9486_WR_GPIO, ILI9486_WR_PIN); // 
 }
 
 static void prv_wr_pin_reset(void)
@@ -238,8 +238,37 @@ static uint8_t prv_db70_read(void)
     // Para conseguir esto necesitamos varias cosas:
     // 1. Configurar los pines de datos como entrada
     // 2. Leer el estado de cada pin y construir el byte de datos
-    // 3. Volver a configurar los pines de datos como salida (si es necesario para futuras escrituras)
+    // 3. Volver a configurar los pines de datos como salida 
 }
+
+
+static void test_db70_write_patterns(void)
+{
+    const uint8_t patterns[] = {
+        0x00, 0xFF, 0x55, 0xAA,
+        0x0F, 0xF0, 0x81, 0x7E
+    };
+
+    for (unsigned i = 0; i < sizeof(patterns); ++i)
+    {
+        uint8_t v = patterns[i];
+
+        prv_db70_write(v);
+
+        
+        for (volatile uint32_t d = 0; d < 1000000; ++d) { }
+    }
+}
+
+void platform_nucleof411re_ili9486_selftest(void)
+{
+    prv_init_ili9486_interface_pins();
+    prv_db70_set_as_outputs();
+    test_db70_write_patterns();
+
+    prv_db70_write(0xFF); // valor final que queda escrito en los pines
+}
+
 // TODO implementation of 8 bit parallel interface functions
 
 void platform_nucleof411re_ili9486_init(void)
