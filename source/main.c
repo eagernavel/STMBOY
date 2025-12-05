@@ -15,7 +15,7 @@ int main(void) {
 
     bsp_init();
 
-    platform_nucleof411re_ili9486_selftest();
+    platform_nucleof411re_ili9486_test_colors_cycle();// Fill screen with red color
     while (1) {
     
         raw_delay(1000000);

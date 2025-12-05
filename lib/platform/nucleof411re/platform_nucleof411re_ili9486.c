@@ -40,6 +40,9 @@
 #define ILI9486_DB7_GPIO GPIOA
 #define ILI9486_DB7_PIN  LL_GPIO_PIN_8 //PA8
 
+#define ILI9486_WIDTH   320
+#define ILI9486_HEIGHT  480
+
 
 
 
@@ -268,6 +271,150 @@ void platform_nucleof411re_ili9486_selftest(void)
 
     prv_db70_write(0xFF); // valor final que queda escrito en los pines
 }
+
+
+//INicializamos la pantalla con el objetivo de rellenarla de rojo//
+
+static void bus_cycle_delay(volatile uint32_t count)
+{
+    while (count--) {
+        __asm__("nop");
+    }
+}
+
+static void prv_pulse_wr(void)
+{
+    LL_GPIO_ResetOutputPin(ILI9486_WR_GPIO, ILI9486_WR_PIN);  
+    bus_cycle_delay(50);   // WR LOW mínimo
+    LL_GPIO_SetOutputPin(ILI9486_WR_GPIO, ILI9486_WR_PIN);
+    bus_cycle_delay(50);   // WR HIGH estabilidad
+}
+
+
+static void prv_write_command(uint8_t cmd)
+{
+    prv_cs_pin_reset();      // seleccionamos pantalla
+    prv_dcx_pin_reset();     // COMMAND
+    prv_db70_write(cmd);     // pone el comando en D0..D7
+    prv_pulse_wr();          // pulso de WR
+    prv_cs_pin_set();      // deseleccionamos pantalla
+}
+
+static void prv_write_data(uint8_t data)
+{
+    prv_cs_pin_reset();      
+    prv_dcx_pin_set();       
+    prv_db70_write(data);    
+    prv_pulse_wr();          
+    prv_cs_pin_set();        
+}
+
+static void prv_ili9486_set_madctl(uint8_t madctl)
+{
+    prv_write_command(0x36);
+    prv_write_data(madctl);
+}
+
+static void prv_ili9486_first_init(void)
+{
+    prv_res_pin_reset();
+    bus_cycle_delay(2000000);
+    prv_res_pin_set();
+    bus_cycle_delay(2000000);
+
+    prv_write_command(0x01);    
+    bus_cycle_delay(2000000);
+
+    prv_write_command(0x11);    
+    bus_cycle_delay(8000000);   
+
+    //Pixel Format 16 bpp RGB565
+    prv_write_command(0x3A);
+    prv_write_data(0x55);
+
+    prv_ili9486_set_madctl(0x08);
+
+    //Display ON
+    prv_write_command(0x29);
+    bus_cycle_delay(2000000);
+}
+
+
+
+static void prv_set_address_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
+{
+    // Column Address Set (0x2A)
+    prv_write_command(0x2A);
+    prv_write_data(x0 >> 8);
+    prv_write_data(x0 & 0xFF);
+    prv_write_data(x1 >> 8);
+    prv_write_data(x1 & 0xFF);
+
+    // Page Address Set (0x2B)
+    prv_write_command(0x2B);
+    prv_write_data(y0 >> 8);
+    prv_write_data(y0 & 0xFF);
+    prv_write_data(y1 >> 8);
+    prv_write_data(y1 & 0xFF);
+}
+
+static void prv_fill_screen(uint16_t color)
+{
+    uint32_t total_pixels = (uint32_t)ILI9486_WIDTH * (uint32_t)ILI9486_HEIGHT;
+    uint8_t hi = color >> 8;
+    uint8_t lo = color & 0xFF;
+
+    prv_set_address_window(0, 0, ILI9486_WIDTH - 1, ILI9486_HEIGHT - 1);
+
+    // Memory Write
+    prv_write_command(0x2C);
+
+    prv_cs_pin_reset();
+    prv_dcx_pin_set(); // DATA
+
+    for (uint32_t i = 0; i < total_pixels; ++i)
+    {
+        prv_db70_write(hi);
+        prv_pulse_wr();
+        prv_db70_write(lo);
+        prv_pulse_wr();
+    }
+
+    prv_cs_pin_set();
+}
+
+void platform_nucleof411re_ili9486_test_fill(uint16_t color)
+{
+    prv_init_ili9486_interface_pins();
+    prv_db70_set_as_outputs();   
+
+    prv_ili9486_first_init();    
+    prv_fill_screen(color);      
+}
+
+void platform_nucleof411re_ili9486_test_colors_cycle(void)
+{
+    prv_init_ili9486_interface_pins();
+    prv_db70_set_as_outputs();
+
+    prv_ili9486_first_init();
+
+    while (1)
+    {
+        // ROJO
+        prv_fill_screen(0xF800);
+        bus_cycle_delay(8000000);
+
+        // VERDE
+        prv_fill_screen(0x07E0);
+        bus_cycle_delay(8000000);
+
+        // AZUL
+        prv_fill_screen(0x001F);
+        bus_cycle_delay(8000000);
+    }
+}
+
 
 // TODO implementation of 8 bit parallel interface functions
 
