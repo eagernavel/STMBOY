@@ -12,10 +12,9 @@ static inline void raw_delay(volatile uint32_t count) {
 
 int main(void) {
 
-
-    bsp_init();
-
-    platform_nucleof411re_ili9486_test_colors_cycle();// Fill screen with red color
+    draw_rectangle (50, 50, 120, 150, 0xF800); // Draw red square
+    
+    
     while (1) {
     
         raw_delay(1000000);

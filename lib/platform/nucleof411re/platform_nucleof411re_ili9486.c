@@ -244,6 +244,7 @@ static uint8_t prv_db70_read(void)
     // 3. Volver a configurar los pines de datos como salida 
 }
 
+//TESTS CON LOS LEDS//
 
 static void test_db70_write_patterns(void)
 {
@@ -366,7 +367,7 @@ static void prv_fill_screen(uint16_t color)
 
     prv_set_address_window(0, 0, ILI9486_WIDTH - 1, ILI9486_HEIGHT - 1);
 
-    // Memory Write
+    
     prv_write_command(0x2C);
 
     prv_cs_pin_reset();
@@ -383,12 +384,75 @@ static void prv_fill_screen(uint16_t color)
     prv_cs_pin_set();
 }
 
-void platform_nucleof411re_ili9486_test_fill(uint16_t color)
+static void prv_initialize_display(void)
 {
     prv_init_ili9486_interface_pins();
     prv_db70_set_as_outputs();   
-
     prv_ili9486_first_init();    
+}
+
+static void prv_fill_square(uint16_t x, uint16_t y, uint16_t size, uint16_t color)
+{
+    uint8_t hi = color >> 8;
+    uint8_t lo = color & 0xFF;
+
+    prv_set_address_window(x, y, x + size - 1, y + size - 1);
+
+    
+    prv_write_command(0x2C);
+
+    prv_cs_pin_reset();
+    prv_dcx_pin_set(); // DATA
+
+    for (uint32_t i = 0; i < (uint32_t)size * (uint32_t)size; ++i) //recorremos todos los pixeles del cuadrado
+    {
+        prv_db70_write(hi);
+        prv_pulse_wr();
+        prv_db70_write(lo);
+        prv_pulse_wr();
+    }
+
+    prv_cs_pin_set();
+}
+
+static void prv_fill_triangle(uint16_t x, uint16_t y, uint16_t size, uint16_t color)
+{
+    uint8_t hi = color >> 8;
+    uint8_t lo = color & 0xFF;
+
+    prv_set_address_window(x, y, x + size - 1, y + size - 1);
+
+    
+    prv_write_command(0x2C);
+
+    prv_cs_pin_reset();
+    prv_dcx_pin_set(); // DATA
+
+    for (uint16_t row = 0; row < size; ++row)
+    {
+        for (uint16_t col = 0; col <= row; ++col)
+        {
+            prv_db70_write(hi);
+            prv_pulse_wr();
+            prv_db70_write(lo);
+            prv_pulse_wr();
+        }
+
+        for (uint16_t col = row + 1; col < size; ++col)
+        {
+            prv_db70_write(0x00);
+            prv_pulse_wr();
+            prv_db70_write(0x00);
+            prv_pulse_wr();
+        }
+    }
+
+    prv_cs_pin_set();
+}
+
+void platform_nucleof411re_ili9486_test_fill(uint16_t color)
+{
+    prv_initialize_display();    
     prv_fill_screen(color);      
 }
 
@@ -415,7 +479,19 @@ void platform_nucleof411re_ili9486_test_colors_cycle(void)
     }
 }
 
+void draw_rectangle (uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color)
+{
+    prv_initialize_display();
 
+    prv_fill_square(x, y, width < height ? width : height, color);
+}
+
+void draw_triangle(uint16_t x, uint16_t y, uint16_t size, uint16_t color)
+{
+    prv_initialize_display();
+    
+    prv_fill_triangle(x, y, size, color);
+}
 // TODO implementation of 8 bit parallel interface functions
 
 void platform_nucleof411re_ili9486_init(void)
