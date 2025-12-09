@@ -321,9 +321,9 @@ static inline bus_cycle_delay()
 
 static inline void prv_pulse_wr(void)
 {
-    LL_GPIO_ResetOutputPin(ILI9486_WR_GPIO, ILI9486_WR_PIN);  
+    prv_wr_pin_reset();  // WR LOW
     bus_cycle_delay();   // WR LOW mínimo
-    LL_GPIO_SetOutputPin(ILI9486_WR_GPIO, ILI9486_WR_PIN);
+    prv_wr_pin_set();
     bus_cycle_delay();   // WR HIGH estabilidad
 }
 
