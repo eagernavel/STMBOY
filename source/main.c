@@ -21,9 +21,9 @@ int main(void) {
      
         x += i;
     }
-    //draw_rectangle (50, 50, 120, 150, 0xF800);
-    //draw_triangle(200,50,60,0xF800);
-    //platform_nucleof411re_ili9486_test_colors_cycle();// Draw red square
+    draw_rectangle (50, 50, 120, 150, 0xF800);
+    draw_triangle(200,50,60,0xF800);
+    platform_nucleof411re_ili9486_test_colors_cycle();// Draw red square
     
     
     while (1) {

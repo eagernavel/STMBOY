@@ -14,6 +14,7 @@ Release/
 *.lst
 *.su
 *.d
+*.s
 
 # Archivos de IDE
 .vscode/settings.json
@@ -22,6 +23,7 @@ Release/
 *.workspace
 *.cproject
 *.project
+*.TEST
 
 # Archivos temporales
 *.tmp

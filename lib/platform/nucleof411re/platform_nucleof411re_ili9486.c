@@ -8,6 +8,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "db_lut.h"
+
 #define ILI9486_RES_GPIO GPIOC
 #define ILI9486_RES_PIN  LL_GPIO_PIN_1 //PC1
 
@@ -165,7 +167,7 @@ static void prv_rd_pin_reset(void)
     LL_GPIO_ResetOutputPin(ILI9486_RD_GPIO, ILI9486_RD_PIN);
 }
 
-static inline void prv_db70_write(uint8_t data)
+/*static inline void prv_db70_write_BSRR_NOT_optimized(uint8_t data)
 {
     uint32_t bsrrA = 0;
     uint32_t bsrrB = 0;
@@ -195,52 +197,16 @@ static inline void prv_db70_write(uint8_t data)
     GPIOA ->BSRR = bsrrA;
     GPIOB ->BSRR = bsrrB;
     GPIOC ->BSRR = bsrrC;
-}
+}*/
 
-/*static inline void prv_db70_write(uint8_t data)
+void prv_db70_write(uint8_t data) // with LUT (lookup table) --> Ej: 00000111
 {
-    if (data & (1 << 0))
-        LL_GPIO_SetOutputPin(ILI9486_DB0_GPIO, ILI9486_DB0_PIN);
-    else
-        LL_GPIO_ResetOutputPin(ILI9486_DB0_GPIO, ILI9486_DB0_PIN);
-
-    if (data & (1 << 1))
-        LL_GPIO_SetOutputPin(ILI9486_DB1_GPIO, ILI9486_DB1_PIN);
-    else
-        LL_GPIO_ResetOutputPin(ILI9486_DB1_GPIO, ILI9486_DB1_PIN);
-
-    if (data & (1 << 2))
-        LL_GPIO_SetOutputPin(ILI9486_DB2_GPIO, ILI9486_DB2_PIN);
-    else
-        LL_GPIO_ResetOutputPin(ILI9486_DB2_GPIO, ILI9486_DB2_PIN);
-
-    if (data & (1 << 3))
-        LL_GPIO_SetOutputPin(ILI9486_DB3_GPIO, ILI9486_DB3_PIN);
-    else
-        LL_GPIO_ResetOutputPin(ILI9486_DB3_GPIO, ILI9486_DB3_PIN);
-
-    if (data & (1 << 4))
-        LL_GPIO_SetOutputPin(ILI9486_DB4_GPIO, ILI9486_DB4_PIN);
-    else
-        LL_GPIO_ResetOutputPin(ILI9486_DB4_GPIO, ILI9486_DB4_PIN);
-
-    if (data & (1 << 5))
-        LL_GPIO_SetOutputPin(ILI9486_DB5_GPIO, ILI9486_DB5_PIN);
-    else
-        LL_GPIO_ResetOutputPin(ILI9486_DB5_GPIO, ILI9486_DB5_PIN);
-
-    if (data & (1 << 6))
-        LL_GPIO_SetOutputPin(ILI9486_DB6_GPIO, ILI9486_DB6_PIN);
-    else
-        LL_GPIO_ResetOutputPin(ILI9486_DB6_GPIO, ILI9486_DB6_PIN);
-
-    if (data & (1 << 7))
-        LL_GPIO_SetOutputPin(ILI9486_DB7_GPIO, ILI9486_DB7_PIN);
-    else
-        LL_GPIO_ResetOutputPin(ILI9486_DB7_GPIO, ILI9486_DB7_PIN);  
-      
+    const DBLutEntry entry = g_dbLut[data];
+    GPIOA->BSRR = entry.bsrrA;
+    GPIOB->BSRR = entry.bsrrB;
+    GPIOC->BSRR = entry.bsrrC;
 }
-*/
+
 static uint8_t prv_db70_read(void)
 {
     uint8_t data = 0;
@@ -345,6 +311,7 @@ static inline void prv_write_data(uint8_t data)
     prv_pulse_wr();          
     prv_cs_pin_set();        
 }
+
 
 static void prv_ili9486_set_madctl(uint8_t madctl)
 {
