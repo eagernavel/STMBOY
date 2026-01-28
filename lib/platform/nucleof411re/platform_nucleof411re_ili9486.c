@@ -42,9 +42,14 @@
 #define ILI9486_DB7_GPIO GPIOA
 #define ILI9486_DB7_PIN  LL_GPIO_PIN_8 //PA8
 
-#define ILI9486_WIDTH   320
+#define ILI9486_WIDTH   380
 #define ILI9486_HEIGHT  480
 
+#define COLOR_BLACK 0x0000
+#define COLOR_WHITE 0xFFFF
+#define COLOR_RED   0xF800
+#define COLOR_GREEN 0x07E0
+#define COLOR_BLUE  0x001F
 
 
 
@@ -117,54 +122,54 @@ static void prv_db70_set_as_inputs(void)
 
 }
 
-static void prv_res_pin_set(void)
+static inline void prv_res_pin_set(void)
 {
-    LL_GPIO_SetOutputPin(ILI9486_RES_GPIO, ILI9486_RES_PIN);// TODO reset pin set function implementation
+    ILI9486_RES_GPIO->BSRR = ILI9486_RES_PIN;
 }
 
-static void prv_res_pin_reset(void)
+static inline void prv_res_pin_reset(void)
 {
-    LL_GPIO_ResetOutputPin(ILI9486_RES_GPIO, ILI9486_RES_PIN);// TODO reset pin reset function implementation
+    ILI9486_RES_GPIO->BSRR = (uint32_t)ILI9486_RES_PIN << 16;
 }
 
-static void prv_cs_pin_set(void) //seleccionar o no la pantalla
+static inline void prv_cs_pin_set(void) //seleccionar o no la pantalla
 {
-    LL_GPIO_SetOutputPin(ILI9486_CS_GPIO, ILI9486_CS_PIN); //INACTIVO
+    ILI9486_CS_GPIO->BSRR = ILI9486_CS_PIN; //INACTIVO
 }
 
-static void prv_cs_pin_reset(void)
+static inline void prv_cs_pin_reset(void)
 {
-    LL_GPIO_ResetOutputPin(ILI9486_CS_GPIO, ILI9486_CS_PIN); //ACTIVO
+    ILI9486_CS_GPIO->BSRR = (uint32_t) ILI9486_CS_PIN << 16; //ACTIVO
 }
 
-static void prv_dcx_pin_set(void)
+static inline void prv_dcx_pin_set(void)
 {
-    LL_GPIO_SetOutputPin(ILI9486_DCX_GPIO, ILI9486_DCX_PIN); //le dice que tipo de dato es, COMMAND o DATA
+    ILI9486_DCX_GPIO->BSRR = ILI9486_DCX_PIN; //le dice que tipo de dato es, COMMAND o DATA
 }
 
-static void prv_dcx_pin_reset(void)
+static inline void prv_dcx_pin_reset(void)
 {
-    LL_GPIO_ResetOutputPin(ILI9486_DCX_GPIO, ILI9486_DCX_PIN); 
+    ILI9486_DCX_GPIO->BSRR =(uint32_t) ILI9486_DCX_PIN << 16; 
 }
 
-static void prv_wr_pin_set(void)
+static inline void prv_wr_pin_set(void)
 {
-    LL_GPIO_SetOutputPin(ILI9486_WR_GPIO, ILI9486_WR_PIN); // 
+    ILI9486_WR_GPIO->BSRR = ILI9486_WR_PIN; // 
 }
 
-static void prv_wr_pin_reset(void)
+static inline void prv_wr_pin_reset(void)
 {
-    LL_GPIO_ResetOutputPin(ILI9486_WR_GPIO, ILI9486_WR_PIN);
+    ILI9486_WR_GPIO->BSRR = (uint32_t)ILI9486_WR_PIN << 16;
 }
 
-static void prv_rd_pin_set(void)
+static inline void prv_rd_pin_set(void)
 {
-    LL_GPIO_SetOutputPin(ILI9486_RD_GPIO, ILI9486_RD_PIN); //
+    ILI9486_RD_GPIO->BSRR = ILI9486_RD_PIN; //
 }
 
-static void prv_rd_pin_reset(void)
+static inline void prv_rd_pin_reset(void)
 {
-    LL_GPIO_ResetOutputPin(ILI9486_RD_GPIO, ILI9486_RD_PIN);
+    ILI9486_RD_GPIO->BSRR = (uint32_t) ILI9486_RD_PIN << 16;
 }
 
 /*static inline void prv_db70_write_BSRR_NOT_optimized(uint8_t data)
@@ -199,13 +204,15 @@ static void prv_rd_pin_reset(void)
     GPIOC ->BSRR = bsrrC;
 }*/
 
-void prv_db70_write(uint8_t data) // with LUT (lookup table) --> Ej: 00000111
+static inline void prv_db70_write(uint8_t data)
 {
-    const DBLutEntry entry = g_dbLut[data];
-    GPIOA->BSRR = entry.bsrrA;
-    GPIOB->BSRR = entry.bsrrB;
-    GPIOC->BSRR = entry.bsrrC;
+    const DBLutEntry *e = &g_dbLut[data];
+
+    GPIOA->BSRR = e->bsrrA;
+    GPIOB->BSRR = e->bsrrB;
+    GPIOC->BSRR = e->bsrrC;
 }
+
 
 static uint8_t prv_db70_read(void)
 {
@@ -273,7 +280,7 @@ void platform_nucleof411re_ili9486_selftest(void)
 
 
 //INicializamos la pantalla con el objetivo de rellenarla de rojo//
-static inline bus_cycle_delay()
+static inline void bus_cycle_delay()
 {
     __asm volatile("nop");
     __asm volatile("nop");
@@ -313,7 +320,7 @@ static inline void prv_write_data(uint8_t data)
 }
 
 
-static void prv_ili9486_set_madctl(uint8_t madctl)
+static inline void prv_ili9486_set_madctl(uint8_t madctl)
 {
     prv_write_command(0x36);
     prv_write_data(madctl);
@@ -362,30 +369,46 @@ static void prv_set_address_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16
     prv_write_data(y1 & 0xFF);
 }
 
+#define SEND_PIXEL()                        \
+    do {                                    \
+        prv_db70_write(hi);                 \
+        prv_pulse_wr();                     \
+        prv_db70_write(lo);                 \
+        prv_pulse_wr();                     \
+    } while (0)
+
 static void prv_fill_screen(uint16_t color)
 {
     uint32_t total_pixels = (uint32_t)ILI9486_WIDTH * (uint32_t)ILI9486_HEIGHT;
     uint8_t hi = color >> 8;
     uint8_t lo = color & 0xFF;
 
-    prv_set_address_window(0, 0, ILI9486_WIDTH - 1, ILI9486_HEIGHT - 1);
+    prv_set_address_window(0, 0, ILI9486_WIDTH - 1, ILI9486_HEIGHT - 1); //pequeño offset en y
 
-    
     prv_write_command(0x2C);
 
     prv_cs_pin_reset();
     prv_dcx_pin_set(); // DATA
 
-    for (uint32_t i = 0; i < total_pixels; ++i)
+    uint32_t blocks4 = total_pixels >> 2;   // total_pixels / 4
+    uint32_t rem     = total_pixels & 0x3;  // total_pixels % 4
+
+    while (blocks4--)
     {
-        prv_db70_write(hi);
-        prv_pulse_wr();
-        prv_db70_write(lo);
-        prv_pulse_wr();
+        SEND_PIXEL();
+        SEND_PIXEL();
+        SEND_PIXEL();
+        SEND_PIXEL();
+    }
+
+    while (rem--)
+    {
+        SEND_PIXEL();
     }
 
     prv_cs_pin_set();
 }
+
 
 /*void prv_initialize_display(void)
 {
@@ -408,6 +431,30 @@ static void prv_fill_square(uint16_t x, uint16_t y, uint16_t size, uint16_t colo
     prv_dcx_pin_set(); // DATA
 
     for (uint32_t i = 0; i < (uint32_t)size * (uint32_t)size; ++i) //recorremos todos los pixeles del cuadrado
+    {
+        prv_db70_write(hi);
+        prv_pulse_wr();
+        prv_db70_write(lo);
+        prv_pulse_wr();
+    }
+
+    prv_cs_pin_set();
+}
+
+static void prv_fill_rectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color)
+{
+    uint8_t hi = color >> 8;
+    uint8_t lo = color & 0xFF;
+
+    prv_set_address_window(x, y, x + width - 1, y + height - 1);
+
+    
+    prv_write_command(0x2C);
+
+    prv_cs_pin_reset();
+    prv_dcx_pin_set(); // DATA
+
+    for (uint32_t i = 0; i < (uint32_t)width * (uint32_t)height; ++i) //recorremos todos los pixeles del rectangulo
     {
         prv_db70_write(hi);
         prv_pulse_wr();
@@ -478,13 +525,49 @@ void platform_nucleof411re_ili9486_test_colors_cycle(void)
 
 void draw_rectangle (uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color)
 {
-    prv_fill_square(x, y, width < height ? width : height, color);
+    prv_fill_rectangle(x, y, width, height, color);
 }
 
 void draw_triangle(uint16_t x, uint16_t y, uint16_t size, uint16_t color)
 {
     prv_fill_triangle(x, y, size, color);
 }
+
+void ili9486_set_addr_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
+{
+    prv_set_address_window(x0, y0, x1, y1);
+}
+
+void ili9486_begin_pixels(void)
+{
+    prv_write_command(0x2C);
+    prv_cs_pin_reset();
+    prv_dcx_pin_set();
+}
+
+void ili9486_end_pixels(void)
+{
+    prv_cs_pin_set();
+}
+
+void ili9486_push_color(uint16_t color, uint32_t count)
+{
+    uint8_t hi = color >> 8, lo = color & 0xFF;
+    while (count--) {
+        prv_db70_write(hi); prv_pulse_wr();
+        prv_db70_write(lo); prv_pulse_wr();
+    }
+}
+
+void ili9486_push_pixels_rgb565(const uint16_t *pixels, uint32_t count)
+{
+    while (count--) {
+        uint16_t c = *pixels++;
+        prv_db70_write(c >> 8); prv_pulse_wr();
+        prv_db70_write(c & 0xFF); prv_pulse_wr();
+    }
+}
+
 // TODO implementation of 8 bit parallel interface functions
 
 void platform_nucleof411re_ili9486_init(void)
@@ -509,4 +592,11 @@ void platform_nucleof411re_ili9486_init(void)
     ili9486_init(interface);
     prv_db70_set_as_outputs();   
     prv_ili9486_first_init(); 
+}
+
+// Wrappers públicos para inicializar y limpiar pantalla desde main.c
+
+void ili9486_clear_screen(uint16_t color)
+{
+    prv_fill_screen(color);
 }

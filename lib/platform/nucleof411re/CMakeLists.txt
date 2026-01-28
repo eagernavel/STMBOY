@@ -13,4 +13,5 @@ target_sources(${PLATFORM_NUCLEOF411RE_TARGET} INTERFACE
     platform_nucleof411re_clock.c
     platform_nucleof411re_serial.c
     platform_nucleof411re_ili9486.c
+    stm32boy.c
 )

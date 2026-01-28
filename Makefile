@@ -11,3 +11,7 @@ configure:
 
 flash:
 	sudo /usr/bin/openocd -f "interface/stlink.cfg" -f "target/stm32f4x.cfg" -c "program build/$(CMAKE_PRESET)/source/firmware.bin verify reset exit 0x08000000"
+
+allf:
+	cmake --build --preset $(CMAKE_PRESET) --target all
+	sudo /usr/bin/openocd -f "interface/stlink.cfg" -f "target/stm32f4x.cfg" -c "program build/$(CMAKE_PRESET)/source/firmware.bin verify reset exit 0x08000000"	

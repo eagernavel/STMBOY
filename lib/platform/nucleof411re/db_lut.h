@@ -18,7 +18,7 @@ typedef struct {
 //  5     PB4
 //  6     PB10
 //  7     PA8
-static const DBLutEntry g_dbLut[256] = {
+ const DBLutEntry g_dbLut[256] = {
     {0x07000000, 0x04380000, 0x00800000},
     {0x05000200, 0x04380000, 0x00800000},
     {0x07000000, 0x04380000, 0x00000080},
