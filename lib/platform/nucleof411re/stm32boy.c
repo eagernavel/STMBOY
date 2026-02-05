@@ -231,6 +231,52 @@ void stm32_drawSpriteRGB565_ck(stm32boy_t *g, int16_t x, int16_t y, int16_t w, i
     }
 }
 
+
+void stm32_write(stm32boy_t *g, const char *s)
+{
+    if (!g || !s) return;
+
+    const uint8_t scale = (g->text_scale == 0) ? 1 : g->text_scale;
+    const int32_t advance_x = 6 * (int32_t)scale;
+    const int32_t advance_y = 8 * (int32_t)scale;
+
+    int32_t cx = (int32_t)g->cursor_x;
+    int32_t cy = (int32_t)g->cursor_y;
+
+    while (*s) {
+        char c = *s++;
+        if (c == '\r') continue;
+
+        if (c == '\n') {
+            cx = 0;
+            cy -= advance_y;                 // <-- BAJAR línea
+            if (cy < 0) break;               // fuera por abajo
+            continue;
+        }
+
+        // wrap horizontal
+        if (cx + advance_x > (int32_t)g->width) {
+            cx = 0;
+            cy -= advance_y;                 // <-- BAJAR línea
+            if (cy < 0) break;
+        }
+
+        // si tu drawChar usa g->cursor_x/y, sincroniza antes de dibujar
+        g->cursor_x = (uint16_t)cx;
+        g->cursor_y = (uint16_t)cy;
+
+        stm32_drawChar(g, c);
+
+        cx += advance_x;
+    }
+
+    // persistir cursor
+    if (cx < 0) cx = 0;
+    if (cy < 0) cy = 0;
+    g->cursor_x = (uint16_t)cx;
+    g->cursor_y = (uint16_t)cy;
+}
+
 void stm32_set_text_cursor(stm32boy_t *g, uint16_t x, uint16_t y) 
 { 
     g->cursor_x = x; 
@@ -257,7 +303,7 @@ text_size_t stm32_measure_text_wrap(stm32boy_t *g, const char *s)
         if (c == '\n') {
             if (line_w > max_w) max_w = line_w;
             line_w = 0;
-            lines++;
+            lines++ ;
             continue;
         }
 
@@ -279,23 +325,33 @@ text_size_t stm32_measure_text_wrap(stm32boy_t *g, const char *s)
 
 
 void stm32_write_aligned(stm32boy_t *g,
-                                uint16_t x, uint16_t y,
-                                text_align_h_t ah,
-                                text_align_v_t av,
-                                const char *s)
+                         uint16_t x, uint16_t y,
+                         text_align_h_t ah,
+                         text_align_v_t av,
+                         const char *s)
 {
     if (!g || !s) return;
 
     text_size_t sz = stm32_measure_text_wrap(g, s);
 
-    int32_t x0 = x;
-    int32_t y0 = y;
+    const int32_t scale = (g->text_scale == 0) ? 1 : g->text_scale;
+    const int32_t adv_y = 8 * scale;  
 
-    if (ah == TEXT_ALIGN_CENTER) x0 -= (int32_t)ILI9486_WIDTH / 2;
-    else if (ah == TEXT_ALIGN_RIGHT) x0 -= (int32_t)ILI9486_WIDTH / 4;
+    int32_t x0 = (int32_t)x;
+    int32_t y0 = (int32_t)y;
 
-    if (av == TEXT_ALIGN_MIDDLE) y0 -= (int32_t)ILI9486_HEIGHT / 2;
-    else if (av == TEXT_ALIGN_BOTTOM) y0 -= (int32_t)ILI9486_HEIGHT / 4;
+    
+    if (ah == TEXT_ALIGN_CENTER) x0 -= (int32_t)sz.w / 2;
+    else if (ah == TEXT_ALIGN_RIGHT) x0 -= (int32_t)sz.w;
+
+    
+    if (av == TEXT_ALIGN_TOP) {
+        y0 = y0 - (adv_y - 1);                 
+    } else if (av == TEXT_ALIGN_MIDDLE) {
+        y0 = y0 + (int32_t)sz.h / 2 - (adv_y - 1);
+    } else { // BOTTOM: y es el borde inferior del bloque
+        y0 = y0 + (int32_t)sz.h - adv_y;       // primera línea para que la última caiga en el bottom
+    }
 
     if (x0 < 0) x0 = 0;
     if (y0 < 0) y0 = 0;
@@ -304,16 +360,6 @@ void stm32_write_aligned(stm32boy_t *g,
     stm32_write(g, s);
 }
 
-
-
-void stm32_set_text_color(stm32boy_t *g, uint16_t fg, uint16_t bg, uint8_t transparent)
-{
-    g->text_fg = fg; 
-    g->text_bg = bg; 
-    g->text_transparent = transparent;
-}
-
-void stm32_set_text_scale(stm32boy_t *g, uint8_t scale) { g->text_scale = (scale == 0) ? 1 : scale; }
 
 void stm32_write_in_rect(stm32boy_t *g,
                          rect_t r,
@@ -338,9 +384,9 @@ void stm32_write_in_rect(stm32boy_t *g,
     // Vertical dentro del rectángulo
     if (av == TEXT_ALIGN_MIDDLE) {
         y0 += ((int32_t)r.h - (int32_t)sz.h) / 2;
-    } else if (av == TEXT_ALIGN_BOTTOM) {
+    } else if (av == TEXT_ALIGN_TOP) {
         y0 += (int32_t)r.h - (int32_t)sz.h;
-    } // TOP: queda en r.y
+    } // BOTTOM: queda en r.y
 
     if (x0 < 0) x0 = 0;
     if (y0 < 0) y0 = 0;
@@ -350,11 +396,24 @@ void stm32_write_in_rect(stm32boy_t *g,
 }
 
 
+
+
+void stm32_set_text_color(stm32boy_t *g, uint16_t fg, uint16_t bg, uint8_t transparent)
+{
+    g->text_fg = fg; 
+    g->text_bg = bg; 
+    g->text_transparent = transparent;
+}
+
+void stm32_set_text_scale(stm32boy_t *g, uint8_t scale) { g->text_scale = (scale == 0) ? 1 : scale; }
+
+
+
 void stm32_drawChar(stm32boy_t *g, char c)
 {
-    if (!g) return;
+    if (!g) return; // comprobamos puntero, si es nulo salimos
 
-    if ((uint8_t)c < 32 || (uint8_t)c > 127) c = '?';
+    if ((uint8_t)c < 32 || (uint8_t)c > 127) c = '?'; // carácter no representable menos que 32 mas que 127
     const uint8_t *glyph = font5x7[(uint8_t)c - 32];
     const uint8_t scale = (g->text_scale == 0) ? 1 : g->text_scale;
     const int16_t x0 = (int16_t)g->cursor_x;
@@ -379,33 +438,15 @@ void stm32_drawChar(stm32boy_t *g, char c)
 
 }
 
-void stm32_write(stm32boy_t *g, const char *s)
+void stm32_write_at(stm32boy_t *g, uint16_t x, uint16_t y, const char *s)
 {
     if (!g || !s) return;
-
-    const uint8_t scale = (g->text_scale == 0) ? 1 : g->text_scale;
-    const uint16_t advance_x = (uint16_t)(6 * scale);
-    const uint16_t advance_y = (uint16_t)(8 * scale);
-
-    while (*s) {
-        char c = *s++;
-        if (c == '\r') continue;
-        if (c == '\n') {
-            g->cursor_x = 0;
-            g->cursor_y = (uint16_t)(g->cursor_y + advance_y);
-            continue;
-        }
-
-        if (g->cursor_x + advance_x > g->width) {
-            g->cursor_x = 0;
-            g->cursor_y = (uint16_t)(g->cursor_y + advance_y);
-        }
-        if (g->cursor_y + advance_y > g->height) break;
-
-        stm32_drawChar(g, c);
-        g->cursor_x = (uint16_t)(g->cursor_x + advance_x);
-    }
+    stm32_set_text_cursor(g, x, y);
+    stm32_write(g, s);
 }
+
+
+
 
 void stm32boy_drawPixel(stm32boy_t *g, int16_t x, int16_t y, stm32boy_color_t color)
 {

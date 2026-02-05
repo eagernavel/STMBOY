@@ -75,6 +75,7 @@ void stm32_set_text_color(stm32boy_t *g, uint16_t fg, uint16_t bg, uint8_t trans
 void stm32_set_text_scale(stm32boy_t *g, uint8_t scale);
 void stm32_write(stm32boy_t *g, const char *s);
 void stm32_drawChar(stm32boy_t *g, char c);
+void stm32_write_at(stm32boy_t *g, uint16_t x, uint16_t y, const char *s);                                 
 
 void stm32boy_drawPixel(stm32boy_t *g, int16_t x, int16_t y, stm32boy_color_t color);
 

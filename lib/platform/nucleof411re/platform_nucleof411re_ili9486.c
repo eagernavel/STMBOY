@@ -51,6 +51,12 @@
 #define COLOR_GREEN 0x07E0
 #define COLOR_BLUE  0x001F
 
+#define ILI9486_MADCTL_MY   0x80
+#define ILI9486_MADCTL_MX   0x40
+#define ILI9486_MADCTL_MV   0x20
+#define ILI9486_MADCTL_BGR  0x08
+
+
 
 
 static void prv_init_ili9486_interface_pins(void)
@@ -323,8 +329,38 @@ static inline void prv_write_data(uint8_t data)
 static inline void prv_ili9486_set_madctl(uint8_t madctl)
 {
     prv_write_command(0x36);
-    prv_write_data(madctl);
+    prv_write_data(madctl); // MY MX MV ML RGB MH
 }
+
+typedef enum {
+    ILI9486_ROT_0,
+    ILI9486_ROT_90,
+    ILI9486_ROT_180,
+    ILI9486_ROT_270
+} ili9486_rotation_t;
+
+static inline void ili9486_set_rotation(ili9486_rotation_t rot)
+{
+    uint8_t madctl = ILI9486_MADCTL_BGR; // normalmente BGR en muchos módulos
+
+    switch (rot) {
+    case ILI9486_ROT_0:
+        madctl |= ILI9486_MADCTL_MX; // ejemplo común
+        break;
+    case ILI9486_ROT_90:
+        madctl |= ILI9486_MADCTL_MV | ILI9486_MADCTL_MX;
+        break;
+    case ILI9486_ROT_180:
+        madctl |= ILI9486_MADCTL_MY;
+        break;
+    case ILI9486_ROT_270:
+        madctl |= ILI9486_MADCTL_MV | ILI9486_MADCTL_MY;
+        break;
+    }
+
+    prv_ili9486_set_madctl(madctl);
+}
+
 
 static void prv_ili9486_first_init(void)
 {
@@ -343,7 +379,14 @@ static void prv_ili9486_first_init(void)
     prv_write_command(0x3A);
     prv_write_data(0x55);
 
-    prv_ili9486_set_madctl(0x08);
+    // Memory Access Control (MADCTL) - fuerza orientación
+    // MY para invertir Y (origen arriba-izquierda)
+    prv_write_command(0x36);
+    prv_write_data(0x08);   
+
+    
+    prv_write_command(0x34);
+
 
     //Display ON
     prv_write_command(0x29);

@@ -27,19 +27,20 @@ int main(void)
     stm32boy_t g;
     stm32boy_init(&g, 320, 480);
 
-    ili9486_clear_screen(COLOR_BLACK);
+    ili9486_clear_screen(COLOR_WHITE);
     stm32_set_text_cursor(&g, 10, 10);
-    stm32_set_text_color(&g, COLOR_WHITE, COLOR_BLACK, 0);
-    stm32_set_text_scale(&g, 2);
-    stm32_write_aligned(&g,
-                        ILI9486_WIDTH / 2,
-                        ILI9486_HEIGHT / 2 - 20,
-                        TEXT_ALIGN_LEFT,
-                        TEXT_ALIGN_TOP,
-                        "STM32BOY \r\n");
+    stm32_set_text_color(&g, COLOR_BLACK, COLOR_WHITE, 0);
+    stm32_set_text_scale(&g, 1);
+    stm32boy_drawPixel(&g, 300, 5, COLOR_BLUE);
+    stm32boy_drawPixel(&g, 10, 20, COLOR_RED);
+
+    rect_t r = { 0, 0, 320, 480}; 
     
-    rect_t r = { 0, 0, 320, 480 }; 
-    stm32_write_in_rect(&g, r, TEXT_ALIGN_CENTER, TEXT_ALIGN_MIDDLE, "HELLO WORLD!\r\nFROM STM32BOY");
+    //stm32_write_aligned(&g, 160, 240, TEXT_ALIGN_BOTTOM, TEXT_ALIGN_MIDDLE, "STM32BOY");
+    stm32_set_text_cursor(&g, 140, 240);
+    stm32_write(&g, "STM32BOY");
+
+                   
 
 
     //stm32_write(&g, "TEST 1 \r\n");
