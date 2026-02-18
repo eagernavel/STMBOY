@@ -136,6 +136,81 @@ void stm32boy_init(stm32boy_t *g, uint16_t width, uint16_t height)
     ili9486_clear_screen(color);
 }*/
 
+
+/**
+ * Draws a line between two points (x0, y0) and (x1, y1) using a horizontal-major Bresenham algorithm.
+ * 
+ * @param g     Pointer to the stm32boy_t graphics context.
+ * @param x0    Starting x-coordinate.
+ * @param y0    Starting y-coordinate.
+ * @param x1    Ending x-coordinate.
+ * @param y1    Ending y-coordinate.
+ * @param color Color to draw the line.
+ */
+
+void stm32_line_h(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
+{
+   int16_t dx = x1 - x0;
+   int16_t dy = y1 - y0;
+
+   dx = abs(dx);
+   dy = abs(dy);
+
+   if (dx != 0){
+    int16_t x = x0;
+    int16_t y = y0;
+    int16_t sx = (x1 > x0) ? 1 : -1;
+    int16_t sy = (y1 > y0) ? 1 : -1;
+    int16_t err = dx / 2;
+
+    for (int16_t i = 0; i <= dx; i++) {
+        stm32boy_drawPixel(g, x, y, color);
+        x += sx;
+        err -= dy;
+        if (err < 0) {
+            y += sy;
+            err += dx;
+        }
+    }
+   }
+}
+
+void stm32_line_v(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
+{  
+
+   int16_t dx = x1 - x0;
+   int16_t dy = y1 - y0;
+
+   dx = abs(dx);
+   dy = abs(dy);
+
+   if (dy != 0){
+    int16_t x = x0;
+    int16_t y = y0;
+    int16_t sx = (x1 > x0) ? 1 : -1;
+    int16_t sy = (y1 > y0) ? 1 : -1;
+    int16_t err = dy / 2;
+
+    for (int16_t i = 0; i <= dy; i++){
+        stm32boy_drawPixel(g, x, y, color);
+        y += sy;
+        err -= dx;
+        if (err < 0){
+            x += sx;
+            err += dy;
+        }
+    }
+   }
+}
+void stm32_Line(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
+{
+    if (abs(x1 - x0) > abs(y1 - y0)) {
+        stm32_line_h(g, x0, y0, x1, y1, color);
+    } else {
+        stm32_line_v(g, x0, y0, x1, y1, color);
+    }
+}
+
 void stm32_fillRect(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color)
 {
     if (w <= 0 || h <= 0) return;
@@ -174,35 +249,23 @@ void stm32_drawRect(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h, u
     stm32_fillRect(g, x + w - 1, y, 1, h, color);
 }
 
-// Bresenham (simple)
-void stm32boy_drawLine(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, stm32boy_color_t color)
+void stm32_triangle(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color)
 {
-    // Casos rápidos
-    if (y0 == y1) {
-        if (x1 < x0) { int16_t t = x0; x0 = x1; x1 = t; }
-        stm32boy_drawFastHLine(g, x0, y0, (int16_t)(x1 - x0 + 1), color);
-        return;
-    }
-    if (x0 == x1) {
-        if (y1 < y0) { int16_t t = y0; y0 = y1; y1 = t; }
-        stm32boy_drawFastVLine(g, x0, y0, (int16_t)(y1 - y0 + 1), color);
-        return;
-    }
+    stm32_Line(g, x0, y0, x1, y1, color);
+    stm32_Line(g, x1, y1, x2, y2, color);
+    stm32_Line(g, x2, y2, x0, y0, color);
+}
 
-    // Bresenham general
-    int16_t dx = (x1 > x0) ? (x1 - x0) : (x0 - x1);
-    int16_t sx = (x0 < x1) ? 1 : -1;
-    int16_t dy = (y1 > y0) ? (y0 - y1) : (y1 - y0); // negativo
-    int16_t sy = (y0 < y1) ? 1 : -1;
-    int16_t err = dx + dy;
+void stm32_polygon(stm32boy_t *g, const int16_t *points, uint16_t num_points, uint16_t color)
+{
+    if (num_points < 2) return;
 
-    for (;;) {
-        stm32boy_drawPixel(g, x0, y0, color);
-        if (x0 == x1 && y0 == y1) break;
-
-        int16_t e2 = (int16_t)(2 * err);
-        if (e2 >= dy) { err += dy; x0 += sx; }
-        if (e2 <= dx) { err += dx; y0 += sy; }
+    for (uint16_t i = 0; i < num_points; i++) {
+        int16_t x0 = points[2 * i];
+        int16_t y0 = points[2 * i + 1];
+        int16_t x1 = points[2 * ((i + 1) % num_points)];
+        int16_t y1 = points[2 * ((i + 1) % num_points) + 1];
+        stm32_Line(g, x0, y0, x1, y1, color);
     }
 }
 
@@ -216,25 +279,12 @@ void stm32_drawBitmapRGB565(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int1
     ili9486_end_pixels();
 }
 
-void stm32_drawSpriteRGB565_ck(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h,
-                               const uint16_t *pixels, uint16_t colorkey)
-{
-    if (w <= 0 || h <= 0) return;
 
-    for (int16_t row = 0; row < h; ++row) {
-        for (int16_t col = 0; col < w; ++col) {
-            uint16_t c = pixels[row * w + col];
-            if (c != colorkey) {
-                stm32_fillRect(g, x + col, y + row, 1, 1, c);
-            }
-        }
-    }
-}
 
 
 void stm32_write(stm32boy_t *g, const char *s)
 {
-    if (!g || !s) return;
+
 
     const uint8_t scale = (g->text_scale == 0) ? 1 : g->text_scale;
     const int32_t advance_x = 6 * (int32_t)scale;
@@ -244,24 +294,23 @@ void stm32_write(stm32boy_t *g, const char *s)
     int32_t cy = (int32_t)g->cursor_y;
 
     while (*s) {
-        char c = *s++;
-        if (c == '\r') continue;
+        char c = *s++; // avanza el puntero hacia el siguiente carácter
+        if (c == '\r') continue; // ignorar retorno de carro
 
         if (c == '\n') {
-            cx = 0;
-            cy -= advance_y;                 // <-- BAJAR línea
-            if (cy < 0) break;               // fuera por abajo
+            cx = 0; // volver al inicio de línea
+            cy -= advance_y;                 // cy = cy - advance_y; <-- BAJAR línea
+            if (cy < 0 || cy > (int32_t)g->height) break;   //si se sale del área de dibujo salir del bucle 
             continue;
         }
 
         // wrap horizontal
-        if (cx + advance_x > (int32_t)g->width) {
+        if (cx + advance_x > (int32_t)g->width) { //comprobamos si el cursor excede el tamaño de la pantalla
             cx = 0;
             cy -= advance_y;                 // <-- BAJAR línea
             if (cy < 0) break;
         }
 
-        // si tu drawChar usa g->cursor_x/y, sincroniza antes de dibujar
         g->cursor_x = (uint16_t)cx;
         g->cursor_y = (uint16_t)cy;
 
@@ -322,79 +371,6 @@ text_size_t stm32_measure_text_wrap(stm32boy_t *g, const char *s)
     out.h = (uint16_t)(lines * adv_y);
     return out;
 }
-
-
-void stm32_write_aligned(stm32boy_t *g,
-                         uint16_t x, uint16_t y,
-                         text_align_h_t ah,
-                         text_align_v_t av,
-                         const char *s)
-{
-    if (!g || !s) return;
-
-    text_size_t sz = stm32_measure_text_wrap(g, s);
-
-    const int32_t scale = (g->text_scale == 0) ? 1 : g->text_scale;
-    const int32_t adv_y = 8 * scale;  
-
-    int32_t x0 = (int32_t)x;
-    int32_t y0 = (int32_t)y;
-
-    
-    if (ah == TEXT_ALIGN_CENTER) x0 -= (int32_t)sz.w / 2;
-    else if (ah == TEXT_ALIGN_RIGHT) x0 -= (int32_t)sz.w;
-
-    
-    if (av == TEXT_ALIGN_TOP) {
-        y0 = y0 - (adv_y - 1);                 
-    } else if (av == TEXT_ALIGN_MIDDLE) {
-        y0 = y0 + (int32_t)sz.h / 2 - (adv_y - 1);
-    } else { // BOTTOM: y es el borde inferior del bloque
-        y0 = y0 + (int32_t)sz.h - adv_y;       // primera línea para que la última caiga en el bottom
-    }
-
-    if (x0 < 0) x0 = 0;
-    if (y0 < 0) y0 = 0;
-
-    stm32_set_text_cursor(g, (uint16_t)x0, (uint16_t)y0);
-    stm32_write(g, s);
-}
-
-
-void stm32_write_in_rect(stm32boy_t *g,
-                         rect_t r,
-                         text_align_h_t ah,
-                         text_align_v_t av,
-                         const char *s)
-{
-    if (!g || !s) return;
-
-    text_size_t sz = stm32_measure_text_wrap(g, s);
-
-    int32_t x0 = r.x;
-    int32_t y0 = r.y;
-
-    // Horizontal dentro del rectángulo
-    if (ah == TEXT_ALIGN_CENTER) {
-        x0 += ((int32_t)r.w - (int32_t)sz.w) / 2;
-    } else if (ah == TEXT_ALIGN_RIGHT) {
-        x0 += (int32_t)r.w - (int32_t)sz.w;
-    } // LEFT: queda en r.x
-
-    // Vertical dentro del rectángulo
-    if (av == TEXT_ALIGN_MIDDLE) {
-        y0 += ((int32_t)r.h - (int32_t)sz.h) / 2;
-    } else if (av == TEXT_ALIGN_TOP) {
-        y0 += (int32_t)r.h - (int32_t)sz.h;
-    } // BOTTOM: queda en r.y
-
-    if (x0 < 0) x0 = 0;
-    if (y0 < 0) y0 = 0;
-
-    stm32_set_text_cursor(g, (uint16_t)x0, (uint16_t)y0);
-    stm32_write(g, s);
-}
-
 
 
 

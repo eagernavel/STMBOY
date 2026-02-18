@@ -40,11 +40,7 @@ typedef struct {
     uint16_t x, y, w, h;
 } rect_t;
 
-void stm32_write_in_rect(stm32boy_t *g,
-                         rect_t r,
-                         text_align_h_t ah,
-                         text_align_v_t av,
-                         const char *s);
+
 
 
 
@@ -54,8 +50,10 @@ void stm32boy_init(stm32boy_t *g, uint16_t width, uint16_t height);
 void stm32_fillScreen(stm32boy_t*g, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
 void stm32_fillRect(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
 void stm32_drawRect(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
-void stm32boy_drawLine(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
-
+void stm32_drawLine(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
+void stm32_Line (stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
+void stm32_triangle(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
+void stm32_polygon(stm32boy_t *g, const int16_t *points, uint16_t num_points, uint16_t color);
 // Bitmaps / sprites
 void stm32_drawBitmapRGB565(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h,
                             const uint16_t *pixels);
@@ -64,11 +62,6 @@ void stm32_drawSpriteRGB565_ck(stm32boy_t *g, int16_t x, int16_t y, int16_t w, i
                                const uint16_t *pixels, uint16_t colorkey);
 
 // Texto (fuente 5x7)
-void stm32_write_aligned(stm32boy_t *g,
-                                uint16_t x, uint16_t y,
-                                text_align_h_t ah,
-                                text_align_v_t av,
-                                const char *s);
 text_size_t stm32_measure_text_wrap(stm32boy_t *g, const char *s);
 void stm32_set_text_cursor(stm32boy_t *g, uint16_t x, uint16_t y);
 void stm32_set_text_color(stm32boy_t *g, uint16_t fg, uint16_t bg, uint8_t transparent);

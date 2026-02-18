@@ -583,22 +583,22 @@ void ili9486_set_addr_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
 
 void ili9486_begin_pixels(void)
 {
-    prv_write_command(0x2C);
-    prv_cs_pin_reset();
-    prv_dcx_pin_set();
+    prv_write_command(0x2C); // Memory Write
+    prv_cs_pin_reset(); // seleccionamos pantalla
+    prv_dcx_pin_set(); // DATA
 }
 
 void ili9486_end_pixels(void)
 {
-    prv_cs_pin_set();
+    prv_cs_pin_set();     // deseleccionamos pantalla
 }
 
 void ili9486_push_color(uint16_t color, uint32_t count)
 {
-    uint8_t hi = color >> 8, lo = color & 0xFF;
-    while (count--) {
-        prv_db70_write(hi); prv_pulse_wr();
-        prv_db70_write(lo); prv_pulse_wr();
+    uint8_t hi = color >> 8, lo = color & 0xFF; // Separamos el color de 16 bits en dos partes de 8 bits para enviarlo por la interfaz de 8 bits
+    while (count--) { 
+        prv_db70_write(hi); prv_pulse_wr(); // Enviamos la parte alta del color
+        prv_db70_write(lo); prv_pulse_wr(); // Enviamos la parte baja del color
     }
 }
 
