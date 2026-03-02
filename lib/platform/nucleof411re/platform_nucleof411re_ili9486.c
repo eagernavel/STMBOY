@@ -602,12 +602,23 @@ void ili9486_push_color(uint16_t color, uint32_t count)
     }
 }
 
-void ili9486_push_pixels_rgb565(const uint16_t *pixels, uint32_t count)
+/*void ili9486_push_pixels_rgb565(const uint16_t *pixels, uint32_t count)
 {
     while (count--) {
         uint16_t c = *pixels++;
         prv_db70_write(c >> 8); prv_pulse_wr();
         prv_db70_write(c & 0xFF); prv_pulse_wr();
+    }
+}*/
+
+void ili9486_push_pixels_rgb565(const uint16_t *pixels, uint32_t count)
+{
+    const uint8_t *p = (const uint8_t*)pixels;
+    while (count--) {
+        // En little-endian (STM32), p[1] es el MSB y p[0] el LSB
+        prv_db70_write(p[1]); prv_pulse_wr();
+        prv_db70_write(p[0]); prv_pulse_wr();
+        p += 2;
     }
 }
 

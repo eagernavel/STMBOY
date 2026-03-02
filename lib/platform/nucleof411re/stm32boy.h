@@ -40,6 +40,15 @@ typedef struct {
     uint16_t x, y, w, h;
 } rect_t;
 
+typedef struct {
+    int16_t x, y;
+    uint16_t w, h;
+    const uint16_t *pixels;  // RGB565, row-major
+    uint16_t key;            // color key (p.ej. SPRITE_KEY)
+    uint8_t  visible;
+    uint8_t  z;              // opcional: prioridad
+} sprite_t;
+
 
 
 
@@ -57,10 +66,6 @@ void stm32_polygon(stm32boy_t *g, const int16_t *points, uint16_t num_points, ui
 // Bitmaps / sprites
 void stm32_drawBitmapRGB565(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h,
                             const uint16_t *pixels);
-
-void stm32_drawSpriteRGB565_ck(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h,
-                               const uint16_t *pixels, uint16_t colorkey);
-
 // Texto (fuente 5x7)
 text_size_t stm32_measure_text_wrap(stm32boy_t *g, const char *s);
 void stm32_set_text_cursor(stm32boy_t *g, uint16_t x, uint16_t y);

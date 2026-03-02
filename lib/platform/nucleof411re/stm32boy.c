@@ -270,16 +270,6 @@ void stm32_polygon(stm32boy_t *g, const int16_t *points, uint16_t num_points, ui
 }
 
 
-void stm32_drawBitmapRGB565(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h,
-                            const uint16_t *pixels)
-{
-    ili9486_set_addr_window((uint16_t)x, (uint16_t)y, (uint16_t)(x + w - 1), (uint16_t)(y + h - 1));
-    ili9486_begin_pixels();
-    ili9486_push_pixels_rgb565(pixels, (uint32_t)w * (uint32_t)h);
-    ili9486_end_pixels();
-}
-
-
 
 
 void stm32_write(stm32boy_t *g, const char *s)
@@ -445,4 +435,25 @@ void stm32boy_drawFastVLine(stm32boy_t *g, int16_t x, int16_t y, int16_t h, stm3
 {
     // línea vertical = rectángulo de ancho 1
     stm32_fillRect(g, x, y, 1, h, color);
+}
+
+/* x = posicion en X
+   y = posicion en Y
+   w = ancho del bitmap
+   h = alto del bitmap
+   pixels = puntero a los pixeles del bitmap (RGB565)
+*/
+void stm32_drawBitmapRGB565(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h,
+                            const uint16_t *pixels)
+{
+    ili9486_set_addr_window((uint16_t)x, (uint16_t)y, (uint16_t)(x + w - 1), (uint16_t)(y + h - 1));
+    ili9486_begin_pixels();
+    ili9486_push_pixels_rgb565(pixels, (uint32_t)w * (uint32_t)h);
+    ili9486_end_pixels();
+}
+
+void stm32_sprite(stm32boy_t *g, int16_t x, int16_t y, const sprite_t *sprite)
+{
+    if (!g || !sprite) return;
+    stm32_drawBitmapRGB565(g, x, y, sprite->w, sprite->h, sprite->pixels);
 }
