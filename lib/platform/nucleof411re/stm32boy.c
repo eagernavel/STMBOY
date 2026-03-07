@@ -1,5 +1,4 @@
 #include "stm32boy.h"
-#include "platform/component/ili9486/ili9486.h" 
 #include "platform/nucleof411re/platform_nucleof411re_ili9486.h"
 #include <stdlib.h>
 
@@ -8,8 +7,8 @@
 #define FONT_SP  1u
 #define CHAR_W   (FONT_W + FONT_SP)
 
-#define ILI9486_WIDTH   320
-#define ILI9486_HEIGHT  480
+//#define ILI9486_WIDTH   320
+//#define ILI9486_HEIGHT  480
 
 
 // Minimal 5x7 font (ASCII 0x20-0x7F), column-major, LSB is top pixel.
@@ -131,11 +130,11 @@ void stm32boy_init(stm32boy_t *g, uint16_t width, uint16_t height)
     g->text_transparent = 1;
 }
 
-/*void stm32_fillScreen(stm32boy_t *g, uint16_t color)
+void stm32_fillScreen(stm32boy_t*g, uint16_t color)
 {
-    (void)g;
-    ili9486_clear_screen(color);
-}*/
+    if (!g) return;
+    stm32_fillRect(g, 0, 0, (int16_t)g->width, (int16_t)g->height, color);
+}
 
 
 /**

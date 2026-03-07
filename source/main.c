@@ -2,7 +2,6 @@
 #include <stdio.h>
 
 #include "bsp/bsp.h"
-#include "platform/nucleof411re/platform_nucleof411re_ili9486.h"
 #include "platform/nucleof411re/stm32boy.h"
 
 // Colores
@@ -24,13 +23,13 @@ static inline void raw_delay(volatile uint32_t count) {
 int main(void)
 {
     
-    platform_nucleof411re_ili9486_init();
+    bsp_init();
     
 
     stm32boy_t g;
-    stm32boy_init(&g, 320, 480);
+    stm32boy_init(&g, ILI9486_WIDTH, ILI9486_HEIGHT);
 
-    ili9486_clear_screen(COLOR_BLACK);
+    stm32_fillScreen(&g, COLOR_WHITE);
     stm32_set_text_cursor(&g, 10, 10);
     stm32_set_text_color(&g, COLOR_BLACK, COLOR_WHITE, 0);
     stm32_set_text_scale(&g, 1);

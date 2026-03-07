@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Revisión de organización y abstracción - STMBOY</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; line-height: 1.45; margin: 36px; color: #111; }
+    h1, h2 { margin-bottom: 0.35em; }
+    h1 { font-size: 24px; }
+    h2 { font-size: 18px; margin-top: 1.2em; }
+    p, li { font-size: 12px; }
+    code { background: #f3f3f3; padding: 1px 4px; border-radius: 3px; }
+    .meta { color: #444; font-size: 11px; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Revisión de Organización y Abstracción del Proyecto STMBOY</h1>
+  <p class="meta">Generado por Codex el 7 de marzo de 2026</p>
+
+  <h2>Resumen</h2>
+  <p>
+    La base es buena (ya existe separación inicial <code>source</code> / <code>bsp</code> / <code>platform</code>),
+    pero actualmente hay acoplamiento entre capas y mezcla de responsabilidades que dificulta escalar,
+    portar a otras placas y mantener la API limpia.
+  </p>
+
+  <h2>Correcciones Detectadas (Prioridad Alta)</h2>
+  <ol>
+    <li>
+      <strong>Acoplamiento de <code>main</code> con la placa:</strong>
+      <code>source/main.c</code> incluye y llama APIs específicas de <code>nucleof411re</code>.
+      La capa de aplicación debería depender de BSP/API genérica, no de drivers de placa.
+    </li>
+    <li>
+      <strong>Doble inicialización del display:</strong>
+      El display se inicializa en <code>main</code> y también desde <code>platform_init()</code>.
+      Debe existir un único punto de inicialización.
+    </li>
+    <li>
+      <strong>Módulo con responsabilidades mezcladas:</strong>
+      <code>platform_nucleof411re_ili9486.c</code> contiene pinout, bus paralelo, protocolo del controlador y funciones de dibujo.
+      Conviene separar por capas (board/bus/driver/gfx).
+    </li>
+    <li>
+      <strong>API pública inconsistente:</strong>
+      Hay funciones declaradas pero no implementadas o duplicadas en headers.
+      Esto genera deuda técnica y ruido para quien use la API.
+    </li>
+    <li>
+      <strong>Assets dentro de header de API:</strong>
+      El sprite <code>sprite_alien_16x16</code> y macros de color están en <code>stm32boy.h</code>.
+      Ese header debería exponer solo tipos y funciones públicas.
+    </li>
+    <li>
+      <strong>Inconsistencia de resolución:</strong>
+      Existen valores diferentes para ancho/alto (ej. 320x480 y 380x480).
+      Debe definirse una única fuente de verdad para dimensiones de pantalla.
+    </li>
+    <li>
+      <strong>Componente ILI9486 infrautilizado:</strong>
+      El módulo genérico <code>lib/platform/component/ili9486</code> casi no encapsula lógica.
+      La mayor parte está todavía en la capa board.
+    </li>
+    <li>
+      <strong>Documentación insuficiente:</strong>
+      El <code>README.md</code> raíz es mínimo y no describe arquitectura, capas ni convenciones.
+    </li>
+  </ol>
+
+  <h2>Recomendaciones de Organización (Estructura Objetivo)</h2>
+  <ol>
+    <li>
+      <strong>Separar en 4 capas:</strong>
+      <code>app</code> (source), <code>gfx</code> (stm32boy), <code>drivers</code> (ili9486 genérico), <code>board</code> (nucleo f411re).
+    </li>
+    <li>
+      <strong>Aislar la aplicación:</strong>
+      <code>main.c</code> debe usar solo API de alto nivel (ej. <code>bsp_init()</code>, <code>gfx_*</code>), sin includes de placa.
+    </li>
+    <li>
+      <strong>Mover <code>stm32boy</code> fuera de board:</strong>
+      llevarlo a algo como <code>lib/gfx/stm32boy/</code>.
+    </li>
+    <li>
+      <strong>Dejar en board solo lo específico de hardware:</strong>
+      reloj, UART, pinmux, bus DB[7:0], timings y wiring.
+    </li>
+    <li>
+      <strong>Mover assets/font a carpeta dedicada:</strong>
+      por ejemplo <code>lib/gfx/assets/</code> o <code>assets/</code>, evitando datos pesados en headers públicos.
+    </li>
+    <li>
+      <strong>Convertir LUT a unidad de compilación:</strong>
+      generar <code>db_lut.c</code> + <code>db_lut.h</code> declarativo para reducir recompilación y acoplamiento.
+    </li>
+    <li>
+      <strong>Normalizar naming y API:</strong>
+      una convención única (ej. snake_case), sin aliases duplicados.
+    </li>
+    <li>
+      <strong>Documentar dependencias permitidas entre capas:</strong>
+      crear <code>docs/ARCHITECTURE.md</code> con reglas claras.
+    </li>
+  </ol>
+
+  <h2>Plan de Refactor Recomendado</h2>
+  <p><strong>Fase 1 (sin romper comportamiento):</strong></p>
+  <ul>
+    <li>Eliminar doble init y limpiar includes de <code>main</code>.</li>
+    <li>Depurar headers: quitar prototipos no implementados y duplicados.</li>
+    <li>Unificar constantes de resolución en una sola definición.</li>
+  </ul>
+
+  <p><strong>Fase 2 (reorganización por capas):</strong></p>
+  <ul>
+    <li>Mover <code>stm32boy</code> a <code>lib/gfx/</code> y actualizar CMake.</li>
+    <li>Mover sprite/font/LUT a módulos dedicados.</li>
+    <li>Reducir <code>platform_nucleof411re_ili9486.c</code> a adaptación board/bus.</li>
+  </ul>
+
+  <p><strong>Fase 3 (mantenibilidad):</strong></p>
+  <ul>
+    <li>Mejorar README y añadir guía de arquitectura.</li>
+    <li>Añadir pruebas básicas de API (al menos compilación por preset).</li>
+  </ul>
+
+</body>
+</html>

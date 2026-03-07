@@ -5,7 +5,6 @@
 #define COLOR_WHITE 0xFFFF
 #define COLOR_GREEN 0x07E0
 
-#define RGB565(r,g,b) ( ((r & 0x1F) << 11) | ((g & 0x3F) << 5) | (b & 0x1F) )
 
 #include <stdint.h>
 
@@ -56,7 +55,7 @@ typedef struct {
 void stm32boy_init(stm32boy_t *g, uint16_t width, uint16_t height);
 
 // Primitivas
-void stm32_fillScreen(stm32boy_t*g, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+void stm32_fillScreen(stm32boy_t*g, uint16_t color);
 void stm32_fillRect(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
 void stm32_drawRect(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
 void stm32_drawLine(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
@@ -83,31 +82,6 @@ void stm32boy_drawFastVLine(stm32boy_t *g, int16_t x, int16_t y, int16_t h, stm3
 //sprites
 void stm32_sprite(stm32boy_t *g, int16_t x, int16_t y, const sprite_t *sprite);
 
-
-// Ejemplo: 8x8, una especie de “bola” blanca con borde gris
-static const uint16_t sprite_ball_8x8[8*8] = {
-    0,0,RGB565(20,40,20),RGB565(28,56,28),RGB565(28,56,28),RGB565(20,40,20),0,0,
-    0,RGB565(20,40,20),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(20,40,20),0,
-    RGB565(20,40,20),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(20,40,20),
-    RGB565(28,56,28),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(28,56,28),
-    RGB565(28,56,28),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(28,56,28),
-    RGB565(20,40,20),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(20,40,20),
-    0,RGB565(20,40,20),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(20,40,20),0,
-    0,0,RGB565(20,40,20),RGB565(28,56,28),RGB565(28,56,28),RGB565(20,40,20),0,0,
-};
-
-#define COLKEY RGB565(31,0,31) // magenta: 0xF81F
-
-static const uint16_t sprite_ship_8x8[64] = {
-    COLKEY,COLKEY,COLKEY,RGB565(0,0,31),RGB565(0,0,31),COLKEY,COLKEY,COLKEY,
-    COLKEY,COLKEY,RGB565(0,0,31),RGB565(0,0,31),RGB565(0,0,31),RGB565(0,0,31),COLKEY,COLKEY,
-    COLKEY,RGB565(0,0,31),RGB565(0,0,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(0,0,31),RGB565(0,0,31),COLKEY,
-    RGB565(0,0,31),RGB565(0,0,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(0,0,31),RGB565(0,0,31),
-    COLKEY,COLKEY,RGB565(0,0,31),RGB565(31,63,31),RGB565(31,63,31),RGB565(0,0,31),COLKEY,COLKEY,
-    COLKEY,COLKEY,COLKEY,RGB565(0,0,31),RGB565(0,0,31),COLKEY,COLKEY,COLKEY,
-    COLKEY,COLKEY,COLKEY,COLKEY,COLKEY,COLKEY,COLKEY,COLKEY,
-    COLKEY,COLKEY,COLKEY,COLKEY,COLKEY,COLKEY,COLKEY,COLKEY,
-};
 
 static const uint16_t sprite_alien_16x16[16*16] = {
 
