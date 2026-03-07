@@ -4,6 +4,7 @@
 #include "stm32f411xe.h"
 #include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_gpio.h"
+#include "stm32f4xx_ll_utils.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -286,8 +287,13 @@ void platform_nucleof411re_ili9486_selftest(void)
 
 
 //INicializamos la pantalla con el objetivo de rellenarla de rojo//
-static inline void bus_cycle_delay()
+static inline void bus_cycle_delay(void)
 {
+    /* Extra settle time keeps 8080 write pulses valid at higher core clocks. */
+    __asm volatile("nop");
+    __asm volatile("nop");
+    __asm volatile("nop");
+    __asm volatile("nop");
     __asm volatile("nop");
     __asm volatile("nop");
 }
@@ -365,15 +371,15 @@ static inline void ili9486_set_rotation(ili9486_rotation_t rot)
 static void prv_ili9486_first_init(void)
 {
     prv_res_pin_reset();
-    bus_cycle_delay();
+    LL_mDelay(10);
     prv_res_pin_set();
-    bus_cycle_delay();
+    LL_mDelay(120);
 
-    prv_write_command(0x01);    
-    bus_cycle_delay();
+    prv_write_command(0x01); /* Software Reset */
+    LL_mDelay(5);
 
-    prv_write_command(0x11);    
-    bus_cycle_delay();   
+    prv_write_command(0x11); /* Sleep OUT */
+    LL_mDelay(120);
 
     //Pixel Format 16 bpp RGB565
     prv_write_command(0x3A);
@@ -390,7 +396,7 @@ static void prv_ili9486_first_init(void)
 
     //Display ON
     prv_write_command(0x29);
-    bus_cycle_delay();
+    LL_mDelay(20);
 }
 
 
@@ -533,6 +539,10 @@ void ili9486_push_pixels_rgb565(const uint16_t *pixels, uint32_t count)
 
 void platform_nucleof411re_ili9486_init(void)
 {
+    static uint8_t s_initialized = 0;
+    if (s_initialized) {
+        return;
+    }
     
     // TODO set function pointers to function implementations
     prv_init_ili9486_interface_pins();
@@ -553,6 +563,7 @@ void platform_nucleof411re_ili9486_init(void)
     ili9486_init(interface);
     prv_db70_set_as_outputs();   
     prv_ili9486_first_init(); 
+    s_initialized = 1;
 }
 
 // Wrappers públicos para inicializar y limpiar pantalla desde main.c

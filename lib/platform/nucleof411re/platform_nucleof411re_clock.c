@@ -4,6 +4,7 @@
 #include "stm32f4xx_ll_pwr.h"
 #include "stm32f4xx_ll_rcc.h"
 #include "stm32f4xx_ll_system.h"
+#include "stm32f4xx_ll_utils.h"
 
 void platform_nucleof411re_clock_init(const platform_nucleof411re_clock_Config config)
 {
@@ -42,4 +43,6 @@ void platform_nucleof411re_clock_init(const platform_nucleof411re_clock_Config c
 
     /* Update SystemCoreClock */
     SystemCoreClockUpdate();
+    /* Configure SysTick to 1ms so LL_mDelay() works reliably. */
+    LL_Init1msTick(SystemCoreClock);
 }

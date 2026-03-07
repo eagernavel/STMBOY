@@ -9,6 +9,7 @@
 #include "stm32f4xx_ll_system.h"
 
 #include <stddef.h>
+#include <stdbool.h>
 
 static void prv_init_clock(void)
 {
@@ -48,7 +49,13 @@ static void prv_init_serial(void)
 
 void platform_init(void)
 {
+    static bool s_initialized = false;
+    if (s_initialized) {
+        return;
+    }
+
     prv_init_clock();
     prv_init_serial();
     platform_nucleof411re_ili9486_init();
+    s_initialized = true;
 }

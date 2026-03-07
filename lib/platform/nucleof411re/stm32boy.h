@@ -58,7 +58,6 @@ void stm32boy_init(stm32boy_t *g, uint16_t width, uint16_t height);
 void stm32_fillScreen(stm32boy_t*g, uint16_t color);
 void stm32_fillRect(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
 void stm32_drawRect(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
-void stm32_drawLine(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
 void stm32_Line (stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
 void stm32_triangle(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
 void stm32_polygon(stm32boy_t *g, const int16_t *points, uint16_t num_points, uint16_t color);
