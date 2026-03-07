@@ -1,6 +1,7 @@
 #include "stm32boy.h"
 #include "platform/component/ili9486/ili9486.h" 
 #include "platform/nucleof411re/platform_nucleof411re_ili9486.h"
+#include <stdlib.h>
 
 #define FONT_W   5u
 #define FONT_H   8u

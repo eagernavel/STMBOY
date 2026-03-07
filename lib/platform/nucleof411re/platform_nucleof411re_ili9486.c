@@ -460,89 +460,6 @@ static void prv_fill_screen(uint16_t color)
     prv_ili9486_first_init();    
 }*/
 
-static void prv_fill_square(uint16_t x, uint16_t y, uint16_t size, uint16_t color)
-{
-    uint8_t hi = color >> 8;
-    uint8_t lo = color & 0xFF;
-
-    prv_set_address_window(x, y, x + size - 1, y + size - 1);
-
-    
-    prv_write_command(0x2C);
-
-    prv_cs_pin_reset();
-    prv_dcx_pin_set(); // DATA
-
-    for (uint32_t i = 0; i < (uint32_t)size * (uint32_t)size; ++i) //recorremos todos los pixeles del cuadrado
-    {
-        prv_db70_write(hi);
-        prv_pulse_wr();
-        prv_db70_write(lo);
-        prv_pulse_wr();
-    }
-
-    prv_cs_pin_set();
-}
-
-static void prv_fill_rectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color)
-{
-    uint8_t hi = color >> 8;
-    uint8_t lo = color & 0xFF;
-
-    prv_set_address_window(x, y, x + width - 1, y + height - 1);
-
-    
-    prv_write_command(0x2C);
-
-    prv_cs_pin_reset();
-    prv_dcx_pin_set(); // DATA
-
-    for (uint32_t i = 0; i < (uint32_t)width * (uint32_t)height; ++i) //recorremos todos los pixeles del rectangulo
-    {
-        prv_db70_write(hi);
-        prv_pulse_wr();
-        prv_db70_write(lo);
-        prv_pulse_wr();
-    }
-
-    prv_cs_pin_set();
-}
-
-static void prv_fill_triangle(uint16_t x, uint16_t y, uint16_t size, uint16_t color)
-{
-    uint8_t hi = color >> 8;
-    uint8_t lo = color & 0xFF;
-
-    prv_set_address_window(x, y, x + size - 1, y + size - 1);
-
-    
-    prv_write_command(0x2C);
-
-    prv_cs_pin_reset();
-    prv_dcx_pin_set(); // DATA
-
-    for (uint16_t row = 0; row < size; ++row)
-    {
-        for (uint16_t col = 0; col <= row; ++col)
-        {
-            prv_db70_write(hi);
-            prv_pulse_wr();
-            prv_db70_write(lo);
-            prv_pulse_wr();
-        }
-
-        for (uint16_t col = row + 1; col < size; ++col)
-        {
-            prv_db70_write(0x00);
-            prv_pulse_wr();
-            prv_db70_write(0x00);
-            prv_pulse_wr();
-        }
-    }
-
-    prv_cs_pin_set();
-}
-
 void platform_nucleof411re_ili9486_test_fill(uint16_t color)
 {
     prv_fill_screen(color);      
@@ -564,16 +481,6 @@ void platform_nucleof411re_ili9486_test_colors_cycle(void)
         prv_fill_screen(0x001F);
         bus_cycle_delay();
     }
-}
-
-void draw_rectangle (uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color)
-{
-    prv_fill_rectangle(x, y, width, height, color);
-}
-
-void draw_triangle(uint16_t x, uint16_t y, uint16_t size, uint16_t color)
-{
-    prv_fill_triangle(x, y, size, color);
 }
 
 void ili9486_set_addr_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
