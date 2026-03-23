@@ -52,13 +52,74 @@ typedef struct {
     const uint16_t *pixels; // w*h RGB565
 } sprite_t;
 
+/*
+ * Estructura de estado de una animacion de sprite.
+ *
+ * frames:
+ *   Array de sprites que forman la animacion.
+ *
+ * frame_count:
+ *   Numero total de frames.
+ *
+ * current_frame:
+ *   Indice del frame actual.
+ *
+ * frame_duration_ms:
+ *   Duracion de cada frame en milisegundos.
+ *
+ * last_tick_ms:
+ *   Marca temporal del ultimo cambio de frame.
+ */
 typedef struct {
-    const sprite_t *frames;      // array de frames
-    uint16_t frame_count;        // numero total de frames
-    uint16_t current_frame;      // frame actual
-    uint32_t frame_duration_ms;  // cuanto dura cada frame
-    uint32_t last_tick_ms;       // ultimo instante en que cambio
+    const sprite_t *frames;
+    uint16_t frame_count;
+    uint16_t current_frame;
+    uint32_t frame_duration_ms;
+    uint32_t last_tick_ms;
 } sprite_anim_t;
+
+/*
+ * Inicializa una animacion.
+ *
+ * anim              -> estructura a inicializar
+ * frames            -> array de frames
+ * frame_count       -> numero de frames del array
+ * frame_duration_ms -> duracion de cada frame
+ * now_ms            -> tiempo actual en ms
+ */
+void sprite_anim_init(sprite_anim_t *anim,
+                      const sprite_t *frames,
+                      uint16_t frame_count,
+                      uint32_t frame_duration_ms,
+                      uint32_t now_ms);
+
+/*
+ * Reinicia la animacion al frame 0.
+ */
+void sprite_anim_reset(sprite_anim_t *anim, uint32_t now_ms);
+
+/*
+ * Devuelve puntero al frame actual.
+ * Si la animacion no es valida, devuelve 0.
+ */
+const sprite_t *sprite_anim_get_frame(const sprite_anim_t *anim);
+
+/*
+ * Actualiza la animacion segun el tiempo actual.
+ *
+ * Devuelve:
+ *   1 -> si el frame ha cambiado
+ *   0 -> si sigue en el mismo frame
+ */
+uint8_t sprite_anim_update(sprite_anim_t *anim, uint32_t now_ms);
+
+/*
+ * Dibuja el frame actual en la posicion indicada.
+ */
+void sprite_anim_draw(stm32boy_t *g,
+                      int16_t x,
+                      int16_t y,
+                      const sprite_anim_t *anim);
 
 void stm32boy_init(stm32boy_t *g, uint16_t width, uint16_t height);
 
