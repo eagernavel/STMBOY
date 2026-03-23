@@ -52,6 +52,14 @@ typedef struct {
     const uint16_t *pixels; // w*h RGB565
 } sprite_t;
 
+typedef struct {
+    const sprite_t *frames;      // array de frames
+    uint16_t frame_count;        // numero total de frames
+    uint16_t current_frame;      // frame actual
+    uint32_t frame_duration_ms;  // cuanto dura cada frame
+    uint32_t last_tick_ms;       // ultimo instante en que cambio
+} sprite_anim_t;
+
 void stm32boy_init(stm32boy_t *g, uint16_t width, uint16_t height);
 
 // Primitivas
@@ -117,5 +125,6 @@ COLOR_BLACK,COLOR_BLACK,COLOR_BLACK,COLOR_BLACK,COLOR_GREEN,COLOR_GREEN,COLOR_GR
 COLOR_BLACK,COLOR_BLACK,COLOR_BLACK,COLOR_GREEN,COLOR_GREEN,COLOR_BLACK,COLOR_GREEN,COLOR_GREEN,COLOR_GREEN,COLOR_GREEN,COLOR_BLACK,COLOR_GREEN,COLOR_GREEN,COLOR_BLACK,COLOR_BLACK,COLOR_BLACK,
 
 };
+
 
 #endif

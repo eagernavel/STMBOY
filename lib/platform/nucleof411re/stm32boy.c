@@ -437,11 +437,11 @@ void stm32boy_drawFastVLine(stm32boy_t *g, int16_t x, int16_t y, int16_t h, stm3
     stm32_fillRect(g, x, y, 1, h, color);
 }
 
-/* x = posicion en X
-   y = posicion en Y
-   w = ancho del bitmap
-   h = alto del bitmap
-   pixels = puntero a los pixeles del bitmap (RGB565)
+/* @param x = posicion en X
+   @param y = posicion en Y
+   @param w = ancho del bitmap
+   @param h = alto del bitmap
+   @param pixels = puntero a los pixeles del bitmap (RGB565)
 */
 void stm32_drawBitmapRGB565(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h,
                             const uint16_t *pixels)
@@ -456,4 +456,48 @@ void stm32_sprite(stm32boy_t *g, int16_t x, int16_t y, const sprite_t *sprite)
 {
     if (!g || !sprite) return;
     stm32_drawBitmapRGB565(g, x, y, sprite->w, sprite->h, sprite->pixels);
+}
+
+void stm32_anim_init(sprite_anim_t *anim,
+                     const sprite_t *frames,
+                     uint16_t frame_count,
+                     uint32_t frame_duration_ms,
+                     uint32_t now_ms)
+{
+    if (!anim || !frames || frame_count == 0) return;
+
+    anim->frames = frames;
+    anim->frame_count = frame_count;
+    anim->current_frame = 0;
+    anim->frame_duration_ms = frame_duration_ms;
+    anim->last_tick_ms = now_ms;
+}
+
+const sprite_t *stm32_anim_get_frame(const sprite_anim_t *anim)
+{    
+    if (!anim || anim->frame_count == 0) return NULL;
+    return &anim->frames[anim->current_frame];
+}
+
+uint8_t stm32_anim_update(sprite_anim_t *anim, uint32_t now_ms)
+{
+    if (!anim || !anim->frames || anim->frame_count == 0) return 0;
+
+    if ((now_ms - anim->last_tick_ms) >= anim->frame_duration_ms) {
+        anim->current_frame++;
+        if (anim->current_frame >= anim->frame_count) {
+            anim->current_frame = 0;
+        }
+        anim->last_tick_ms = now_ms;
+        return 1;
+    }
+
+    return 0;
+}
+void stm32_anim_draw(stm32boy_t *g, int16_t x, int16_t y, const sprite_anim_t *anim)
+{
+    const sprite_t *frame = stm32_anim_get_frame(anim);
+    if (!frame) return;
+
+    stm32_sprite(g, x, y, frame);
 }
