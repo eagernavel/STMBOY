@@ -1,6 +1,15 @@
 #include "systick.h"
 #include "stm32f411xe.h"
 
+
+/**
+ * @brief Inicializa SysTick para generar una interrupción periódica cada 1 ms.
+ *
+ * La función calcula el valor de recarga a partir de la frecuencia del núcleo
+ * (`core_clock_hz`) y configura SysTick usando el reloj del core. Cada interrupción
+ * incrementa un contador global de milisegundos empleado como base temporal del sistema.
+ */
+
 static volatile uint32_t g_systick_ms = 0;
 
 void systick_init(uint32_t core_clock_hz)
