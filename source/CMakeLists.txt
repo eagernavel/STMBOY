@@ -3,6 +3,8 @@ add_executable(${EXECUTABLE_TARGET})
 
 target_link_libraries(${EXECUTABLE_TARGET} PRIVATE
     BSP
+    graphics
+    game_engine
 )
 
 # Add compile options here
