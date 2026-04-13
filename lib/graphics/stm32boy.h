@@ -2,7 +2,8 @@
 #define STM32BOY_H
 
 #include <stdint.h>
-#include "common/types.h"   /* sprite_t, rect_t, colores RGB565, stm32boy_color_t */
+#include "common/types.h"       /* sprite_t, rect_t, colores RGB565, stm32boy_color_t */
+#include "common/display_hal.h" /* display_hal_t — interfaz abstracta del display */
 
 /* -----------------------------------------------------------------------
  * Contexto gráfico principal.
@@ -12,6 +13,9 @@
 typedef struct stm32boy {
     uint16_t width;
     uint16_t height;
+
+    /* HAL del display — inyección de dependencia */
+    const display_hal_t *display;
 
     // Texto
     uint16_t cursor_x;
@@ -43,38 +47,39 @@ typedef struct {
 /* -----------------------------------------------------------------------
  * Inicialización
  * ----------------------------------------------------------------------- */
-void stm32boy_init(stm32boy_t *g, uint16_t width, uint16_t height);
+void stm32boy_init(stm32boy_t *g, uint16_t width, uint16_t height,
+                   const display_hal_t *display);
 
 /* -----------------------------------------------------------------------
  * Primitivas 2D
  * ----------------------------------------------------------------------- */
-void stm32_fillScreen(stm32boy_t *g, uint16_t color);
-void stm32_fillRect(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
-void stm32_drawRect(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
-void stm32_Line(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
-void stm32_triangle(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
-void stm32_polygon(stm32boy_t *g, const int16_t *points, uint16_t num_points, uint16_t color);
+void stm32boy_fill_screen(stm32boy_t *g, uint16_t color);
+void stm32boy_fill_rect(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+void stm32boy_draw_rect(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+void stm32boy_draw_line(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
+void stm32boy_draw_triangle(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
+void stm32boy_draw_polygon(stm32boy_t *g, const int16_t *points, uint16_t num_points, uint16_t color);
 
-void stm32boy_drawPixel(stm32boy_t *g, int16_t x, int16_t y, stm32boy_color_t color);
-void stm32boy_drawFastHLine(stm32boy_t *g, int16_t x, int16_t y, int16_t w, stm32boy_color_t color);
-void stm32boy_drawFastVLine(stm32boy_t *g, int16_t x, int16_t y, int16_t h, stm32boy_color_t color);
+void stm32boy_draw_pixel(stm32boy_t *g, int16_t x, int16_t y, stm32boy_color_t color);
+void stm32boy_draw_fast_hline(stm32boy_t *g, int16_t x, int16_t y, int16_t w, stm32boy_color_t color);
+void stm32boy_draw_fast_vline(stm32boy_t *g, int16_t x, int16_t y, int16_t h, stm32boy_color_t color);
 
 /* -----------------------------------------------------------------------
  * Bitmaps / Sprites
  * ----------------------------------------------------------------------- */
-void stm32_drawBitmapRGB565(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h,
-                            const uint16_t *pixels);
-void stm32_sprite(stm32boy_t *g, int16_t x, int16_t y, const sprite_t *sprite);
+void stm32boy_draw_bitmap_rgb565(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h,
+                                 const uint16_t *pixels);
+void stm32boy_draw_sprite(stm32boy_t *g, int16_t x, int16_t y, const sprite_t *sprite);
 
 /* -----------------------------------------------------------------------
  * Texto (fuente 5x7)
  * ----------------------------------------------------------------------- */
-text_size_t stm32_measure_text_wrap(stm32boy_t *g, const char *s);
-void stm32_set_text_cursor(stm32boy_t *g, uint16_t x, uint16_t y);
-void stm32_set_text_color(stm32boy_t *g, uint16_t fg, uint16_t bg, uint8_t transparent);
-void stm32_set_text_scale(stm32boy_t *g, uint8_t scale);
-void stm32_write(stm32boy_t *g, const char *s);
-void stm32_drawChar(stm32boy_t *g, char c);
-void stm32_write_at(stm32boy_t *g, uint16_t x, uint16_t y, const char *s);
+text_size_t stm32boy_measure_text_wrap(stm32boy_t *g, const char *s);
+void stm32boy_set_text_cursor(stm32boy_t *g, uint16_t x, uint16_t y);
+void stm32boy_set_text_color(stm32boy_t *g, uint16_t fg, uint16_t bg, uint8_t transparent);
+void stm32boy_set_text_scale(stm32boy_t *g, uint8_t scale);
+void stm32boy_write(stm32boy_t *g, const char *s);
+void stm32boy_draw_char(stm32boy_t *g, char c);
+void stm32boy_write_at(stm32boy_t *g, uint16_t x, uint16_t y, const char *s);
 
 #endif

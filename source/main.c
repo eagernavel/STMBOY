@@ -2,21 +2,30 @@
 #include <stdio.h>
 
 #include "bsp/bsp.h"
-#include "graphics/stm32boy.h"          /* primitivas gráficas + colores */
-#include "game_engine/actor.h"           /* actor_t, actor_init/update/bounce */
-#include "game_engine/animation.h"       /* sprite_anim_get_frame */
+#include "graphics/stm32boy.h"                            /* primitivas gráficas + colores */
+#include "game_engine/actor.h"                             /* actor_t, actor_init/update/bounce */
+#include "game_engine/animation.h"                         /* sprite_anim_get_frame */
 #include "platform/nucleof411re/systick.h"
+#include "platform/nucleof411re/platform_nucleof411re_ili9486.h" /* driver concreto */
 #include "stm32f411xe.h"
 
 /* Colores ya definidos en common/types.h (vía stm32boy.h) */
 
+/* -----------------------------------------------------------------------
+ * Display HAL: inyección del driver ILI9486 concreto.
+ * Solo main.c (capa de aplicación) conoce el driver concreto; graphics
+ * solo trabaja con la interfaz abstracta display_hal_t.
+ * ----------------------------------------------------------------------- */
+static const display_hal_t ili9486_display = {
+    .set_addr_window  = ili9486_set_addr_window,
+    .begin_pixels     = ili9486_begin_pixels,
+    .end_pixels       = ili9486_end_pixels,
+    .push_color       = ili9486_push_color,
+    .push_pixels_rgb565 = ili9486_push_pixels_rgb565,
+};
 
-#define ILI9486_WIDTH   320
-#define ILI9486_HEIGHT  480
-
-static inline void raw_delay(volatile uint32_t count) {
-    while (count--) __asm__("nop");
-}
+#define SCREEN_WIDTH   320
+#define SCREEN_HEIGHT  480
 
 
 /* ------------------------------------------------------------------------- */
@@ -63,8 +72,8 @@ int main(void)
     actor_t player;
     uint32_t now_ms;
 
-    stm32boy_init(&g, ILI9486_WIDTH, ILI9486_HEIGHT);
-    stm32_fillScreen(&g, COLOR_BLACK);
+    stm32boy_init(&g, SCREEN_WIDTH, SCREEN_HEIGHT, &ili9486_display);
+    stm32boy_fill_screen(&g, COLOR_BLACK);
 
     now_ms = systick_millis();
 
@@ -75,7 +84,7 @@ int main(void)
     {
         const sprite_t *frame = sprite_anim_get_frame(&player.anim);
         if (frame) {
-            stm32_sprite(&g, player.x, player.y, frame);
+            stm32boy_draw_sprite(&g, player.x, player.y, frame);
         }
     }
 
@@ -85,17 +94,17 @@ int main(void)
 
         if (actor_update(&player, now_ms))
         {
-            actor_bounce_on_limits(&player, ILI9486_WIDTH, ILI9486_HEIGHT);
+            actor_bounce_on_limits(&player, g.width, g.height);
 
             /* Lógica de dibujo del actor (inline de actor_draw):
              * 1. Borrar posición anterior con color de fondo.
              * 2. Dibujar frame actual en posición nueva.            */
-            stm32_fillRect(&g, player.prev_x, player.prev_y,
-                           player.w, player.h, COLOR_BLACK);
+            stm32boy_fill_rect(&g, player.prev_x, player.prev_y,
+                               player.w, player.h, COLOR_BLACK);
             {
                 const sprite_t *frame = sprite_anim_get_frame(&player.anim);
                 if (frame) {
-                    stm32_sprite(&g, player.x, player.y, frame);
+                    stm32boy_draw_sprite(&g, player.x, player.y, frame);
                 }
             }
         }

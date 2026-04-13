@@ -1,14 +1,10 @@
 #include "stm32boy.h"
-#include "platform/nucleof411re/platform_nucleof411re_ili9486.h"
 #include <stdlib.h>
 
 #define FONT_W   5u
 #define FONT_H   8u
 #define FONT_SP  1u
 #define CHAR_W   (FONT_W + FONT_SP)
-
-//#define ILI9486_WIDTH   320
-//#define ILI9486_HEIGHT  480
 
 
 // Minimal 5x7 font (ASCII 0x20-0x7F), column-major, LSB is top pixel.
@@ -117,10 +113,12 @@ static inline int16_t clamp16(int16_t v, int16_t lo, int16_t hi) {
     return v;
 }
 
-void stm32boy_init(stm32boy_t *g, uint16_t width, uint16_t height)
+void stm32boy_init(stm32boy_t *g, uint16_t width, uint16_t height,
+                   const display_hal_t *display)
 {
     g->width = width;
     g->height = height;
+    g->display = display;
 
     g->cursor_x = 0;
     g->cursor_y = 0;
@@ -130,10 +128,10 @@ void stm32boy_init(stm32boy_t *g, uint16_t width, uint16_t height)
     g->text_transparent = 1;
 }
 
-void stm32_fillScreen(stm32boy_t*g, uint16_t color)
+void stm32boy_fill_screen(stm32boy_t*g, uint16_t color)
 {
     if (!g) return;
-    stm32_fillRect(g, 0, 0, (int16_t)g->width, (int16_t)g->height, color);
+    stm32boy_fill_rect(g, 0, 0, (int16_t)g->width, (int16_t)g->height, color);
 }
 
 
@@ -148,7 +146,7 @@ void stm32_fillScreen(stm32boy_t*g, uint16_t color)
  * @param color Color to draw the line.
  */
 
-void stm32_line_h(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
+static void stm32boy_line_h(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
 {
    int16_t dx = x1 - x0;
    int16_t dy = y1 - y0;
@@ -164,7 +162,7 @@ void stm32_line_h(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1,
     int16_t err = dx / 2;
 
     for (int16_t i = 0; i <= dx; i++) {
-        stm32boy_drawPixel(g, x, y, color);
+        stm32boy_draw_pixel(g, x, y, color);
         x += sx;
         err -= dy;
         if (err < 0) {
@@ -175,7 +173,7 @@ void stm32_line_h(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1,
    }
 }
 
-void stm32_line_v(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
+static void stm32boy_line_v(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
 {  
 
    int16_t dx = x1 - x0;
@@ -192,7 +190,7 @@ void stm32_line_v(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1,
     int16_t err = dy / 2;
 
     for (int16_t i = 0; i <= dy; i++){
-        stm32boy_drawPixel(g, x, y, color);
+        stm32boy_draw_pixel(g, x, y, color);
         y += sy;
         err -= dx;
         if (err < 0){
@@ -202,16 +200,16 @@ void stm32_line_v(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1,
     }
    }
 }
-void stm32_Line(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
+void stm32boy_draw_line(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
 {
     if (abs(x1 - x0) > abs(y1 - y0)) {
-        stm32_line_h(g, x0, y0, x1, y1, color);
+        stm32boy_line_h(g, x0, y0, x1, y1, color);
     } else {
-        stm32_line_v(g, x0, y0, x1, y1, color);
+        stm32boy_line_v(g, x0, y0, x1, y1, color);
     }
 }
 
-void stm32_fillRect(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color)
+void stm32boy_fill_rect(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color)
 {
     if (w <= 0 || h <= 0) return;
 
@@ -232,31 +230,31 @@ void stm32_fillRect(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h, u
     uint16_t ww = (uint16_t)(x1 - x0 + 1);
     uint16_t hh = (uint16_t)(y1 - y0 + 1);
 
-    ili9486_set_addr_window((uint16_t)x0, (uint16_t)y0, (uint16_t)x1, (uint16_t)y1);
-    ili9486_begin_pixels();
-    ili9486_push_color(color, (uint32_t)ww * (uint32_t)hh);
-    ili9486_end_pixels();
+    g->display->set_addr_window((uint16_t)x0, (uint16_t)y0, (uint16_t)x1, (uint16_t)y1);
+    g->display->begin_pixels();
+    g->display->push_color(color, (uint32_t)ww * (uint32_t)hh);
+    g->display->end_pixels();
 }
 
-void stm32_drawRect(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color)
+void stm32boy_draw_rect(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color)
 {
     if (w <= 0 || h <= 0) return;
 
     // Bordes: 4 rectángulos finos
-    stm32_fillRect(g, x, y, w, 1, color);
-    stm32_fillRect(g, x, y + h - 1, w, 1, color);
-    stm32_fillRect(g, x, y, 1, h, color);
-    stm32_fillRect(g, x + w - 1, y, 1, h, color);
+    stm32boy_fill_rect(g, x, y, w, 1, color);
+    stm32boy_fill_rect(g, x, y + h - 1, w, 1, color);
+    stm32boy_fill_rect(g, x, y, 1, h, color);
+    stm32boy_fill_rect(g, x + w - 1, y, 1, h, color);
 }
 
-void stm32_triangle(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color)
+void stm32boy_draw_triangle(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color)
 {
-    stm32_Line(g, x0, y0, x1, y1, color);
-    stm32_Line(g, x1, y1, x2, y2, color);
-    stm32_Line(g, x2, y2, x0, y0, color);
+    stm32boy_draw_line(g, x0, y0, x1, y1, color);
+    stm32boy_draw_line(g, x1, y1, x2, y2, color);
+    stm32boy_draw_line(g, x2, y2, x0, y0, color);
 }
 
-void stm32_polygon(stm32boy_t *g, const int16_t *points, uint16_t num_points, uint16_t color)
+void stm32boy_draw_polygon(stm32boy_t *g, const int16_t *points, uint16_t num_points, uint16_t color)
 {
     if (num_points < 2) return;
 
@@ -265,14 +263,14 @@ void stm32_polygon(stm32boy_t *g, const int16_t *points, uint16_t num_points, ui
         int16_t y0 = points[2 * i + 1];
         int16_t x1 = points[2 * ((i + 1) % num_points)];
         int16_t y1 = points[2 * ((i + 1) % num_points) + 1];
-        stm32_Line(g, x0, y0, x1, y1, color);
+        stm32boy_draw_line(g, x0, y0, x1, y1, color);
     }
 }
 
 
 
 
-void stm32_write(stm32boy_t *g, const char *s)
+void stm32boy_write(stm32boy_t *g, const char *s)
 {
 
 
@@ -304,7 +302,7 @@ void stm32_write(stm32boy_t *g, const char *s)
         g->cursor_x = (uint16_t)cx;
         g->cursor_y = (uint16_t)cy;
 
-        stm32_drawChar(g, c);
+        stm32boy_draw_char(g, c);
 
         cx += advance_x;
     }
@@ -316,14 +314,14 @@ void stm32_write(stm32boy_t *g, const char *s)
     g->cursor_y = (uint16_t)cy;
 }
 
-void stm32_set_text_cursor(stm32boy_t *g, uint16_t x, uint16_t y) 
+void stm32boy_set_text_cursor(stm32boy_t *g, uint16_t x, uint16_t y) 
 { 
     g->cursor_x = x; 
     g->cursor_y = y; 
 }
 
 
-text_size_t stm32_measure_text_wrap(stm32boy_t *g, const char *s)
+text_size_t stm32boy_measure_text_wrap(stm32boy_t *g, const char *s)
 {
     text_size_t out = {0, 0};
     if (!g || !s) return out;
@@ -364,18 +362,18 @@ text_size_t stm32_measure_text_wrap(stm32boy_t *g, const char *s)
 
 
 
-void stm32_set_text_color(stm32boy_t *g, uint16_t fg, uint16_t bg, uint8_t transparent)
+void stm32boy_set_text_color(stm32boy_t *g, uint16_t fg, uint16_t bg, uint8_t transparent)
 {
     g->text_fg = fg; 
     g->text_bg = bg; 
     g->text_transparent = transparent;
 }
 
-void stm32_set_text_scale(stm32boy_t *g, uint8_t scale) { g->text_scale = (scale == 0) ? 1 : scale; }
+void stm32boy_set_text_scale(stm32boy_t *g, uint8_t scale) { g->text_scale = (scale == 0) ? 1 : scale; }
 
 
 
-void stm32_drawChar(stm32boy_t *g, char c)
+void stm32boy_draw_char(stm32boy_t *g, char c)
 {
     if (!g) return; // comprobamos puntero, si es nulo salimos
 
@@ -386,7 +384,7 @@ void stm32_drawChar(stm32boy_t *g, char c)
     const int16_t y0 = (int16_t)g->cursor_y;
 
     if (!g->text_transparent) {
-        stm32_fillRect(g, x0, y0, (int16_t)(6 * scale), (int16_t)(8 * scale), g->text_bg);
+        stm32boy_fill_rect(g, x0, y0, (int16_t)(6 * scale), (int16_t)(8 * scale), g->text_bg);
     }
 
     for (uint8_t col = 0; col < 5; ++col) {
@@ -395,8 +393,8 @@ void stm32_drawChar(stm32boy_t *g, char c)
             if (bits & 0x80) { // MSB
                 int16_t px = x0 + (int16_t)col * (int16_t)scale;
                 int16_t py = y0 + (int16_t)row * (int16_t)scale;
-                if (scale == 1) stm32boy_drawPixel(g, px, py, g->text_fg);
-                else stm32_fillRect(g, px, py, scale, scale, g->text_fg);
+                if (scale == 1) stm32boy_draw_pixel(g, px, py, g->text_fg);
+                else stm32boy_fill_rect(g, px, py, scale, scale, g->text_fg);
             }
             bits <<= 1;
         }
@@ -404,37 +402,37 @@ void stm32_drawChar(stm32boy_t *g, char c)
 
 }
 
-void stm32_write_at(stm32boy_t *g, uint16_t x, uint16_t y, const char *s)
+void stm32boy_write_at(stm32boy_t *g, uint16_t x, uint16_t y, const char *s)
 {
     if (!g || !s) return;
-    stm32_set_text_cursor(g, x, y);
-    stm32_write(g, s);
+    stm32boy_set_text_cursor(g, x, y);
+    stm32boy_write(g, s);
 }
 
 
 
 
-void stm32boy_drawPixel(stm32boy_t *g, int16_t x, int16_t y, stm32boy_color_t color)
+void stm32boy_draw_pixel(stm32boy_t *g, int16_t x, int16_t y, stm32boy_color_t color)
 {
     if (x < 0 || y < 0) return;
     if (x >= (int16_t)g->width || y >= (int16_t)g->height) return;
 
-    ili9486_set_addr_window((uint16_t)x, (uint16_t)y, (uint16_t)x, (uint16_t)y);
-    ili9486_begin_pixels();
-    ili9486_push_color(color, 1);
-    ili9486_end_pixels();
+    g->display->set_addr_window((uint16_t)x, (uint16_t)y, (uint16_t)x, (uint16_t)y);
+    g->display->begin_pixels();
+    g->display->push_color(color, 1);
+    g->display->end_pixels();
 }
 
-void stm32boy_drawFastHLine(stm32boy_t *g, int16_t x, int16_t y, int16_t w, stm32boy_color_t color)
+void stm32boy_draw_fast_hline(stm32boy_t *g, int16_t x, int16_t y, int16_t w, stm32boy_color_t color)
 {
     // línea horizontal = rectángulo de alto 1
-    stm32_fillRect(g, x, y, w, 1, color);
+    stm32boy_fill_rect(g, x, y, w, 1, color);
 }
 
-void stm32boy_drawFastVLine(stm32boy_t *g, int16_t x, int16_t y, int16_t h, stm32boy_color_t color)
+void stm32boy_draw_fast_vline(stm32boy_t *g, int16_t x, int16_t y, int16_t h, stm32boy_color_t color)
 {
     // línea vertical = rectángulo de ancho 1
-    stm32_fillRect(g, x, y, 1, h, color);
+    stm32boy_fill_rect(g, x, y, 1, h, color);
 }
 
 /* @param x = posicion en X
@@ -443,17 +441,17 @@ void stm32boy_drawFastVLine(stm32boy_t *g, int16_t x, int16_t y, int16_t h, stm3
    @param h = alto del bitmap
    @param pixels = puntero a los pixeles del bitmap (RGB565)
 */
-void stm32_drawBitmapRGB565(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h,
-                            const uint16_t *pixels)
+void stm32boy_draw_bitmap_rgb565(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h,
+                                 const uint16_t *pixels)
 {
-    ili9486_set_addr_window((uint16_t)x, (uint16_t)y, (uint16_t)(x + w - 1), (uint16_t)(y + h - 1));
-    ili9486_begin_pixels();
-    ili9486_push_pixels_rgb565(pixels, (uint32_t)w * (uint32_t)h);
-    ili9486_end_pixels();
+    g->display->set_addr_window((uint16_t)x, (uint16_t)y, (uint16_t)(x + w - 1), (uint16_t)(y + h - 1));
+    g->display->begin_pixels();
+    g->display->push_pixels_rgb565(pixels, (uint32_t)w * (uint32_t)h);
+    g->display->end_pixels();
 }
 
-void stm32_sprite(stm32boy_t *g, int16_t x, int16_t y, const sprite_t *sprite)
+void stm32boy_draw_sprite(stm32boy_t *g, int16_t x, int16_t y, const sprite_t *sprite)
 {
     if (!g || !sprite) return;
-    stm32_drawBitmapRGB565(g, x, y, sprite->w, sprite->h, sprite->pixels);
+    stm32boy_draw_bitmap_rgb565(g, x, y, sprite->w, sprite->h, sprite->pixels);
 }
