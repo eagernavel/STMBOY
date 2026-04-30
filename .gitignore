@@ -24,6 +24,7 @@ Release/
 *.cproject
 *.project
 *.TEST
+*.superpowers
 
 # Archivos temporales
 *.tmp

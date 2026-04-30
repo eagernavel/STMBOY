@@ -13,5 +13,6 @@ target_sources(${PLATFORM_NUCLEOF411RE_TARGET} PRIVATE
     platform_nucleof411re_clock.c
     platform_nucleof411re_serial.c
     platform_nucleof411re_ili9486.c
+    platform_nucleof411re_buttons.c
     systick.c
 )

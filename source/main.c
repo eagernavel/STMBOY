@@ -2,11 +2,12 @@
 #include <stdio.h>
 
 #include "bsp/bsp.h"
-#include "graphics/stm32boy.h"                            /* primitivas gráficas + colores */
-#include "game_engine/actor.h"                             /* actor_t, actor_init/update/bounce */
-#include "game_engine/animation.h"                         /* sprite_anim_get_frame */
+#include "graphics/stm32boy.h"                                   /* primitivas gráficas + colores */
+#include "game_engine/actor.h"                                    /* actor_t, actor_init/update/bounce */
+#include "game_engine/animation.h"                                /* sprite_anim_get_frame */
 #include "platform/nucleof411re/systick.h"
-#include "platform/nucleof411re/platform_nucleof411re_ili9486.h" /* driver concreto */
+#include "platform/nucleof411re/platform_nucleof411re_ili9486.h"  /* driver concreto display */
+#include "platform/nucleof411re/platform_nucleof411re_buttons.h"  /* driver concreto botones */
 #include "stm32f411xe.h"
 
 /* Colores ya definidos en common/types.h (vía stm32boy.h) */
@@ -79,8 +80,7 @@ int main(void)
 
     actor_init(&player, 100, 100, 8, 8, 1, 0, 40, test_frames, 2, 200, now_ms);
 
-    /* Dibujado inicial del sprite (inline de la lógica que antes era
-     * sprite_anim_draw — ahora la app orquesta graphics + game_engine) */
+    /* Dibujado inicial */
     {
         const sprite_t *frame = sprite_anim_get_frame(&player.anim);
         if (frame) {
@@ -88,19 +88,49 @@ int main(void)
         }
     }
 
+    /* Color de fondo actual — START lo alterna */
+    uint16_t bg_color = COLOR_BLACK;
+
     while (1)
     {
         now_ms = systick_millis();
 
+        /* ---- 1. Leer botones ----------------------------------------- */
+        platform_nucleof411re_buttons_update();
+        const button_state_t *btn = platform_nucleof411re_buttons_get();
+
+        /* ---- 2. Entrada → modificar velocidad del actor --------------- */
+        /*
+         * UP   presionado → mover hacia arriba  (vy = -1)
+         * DOWN presionado → mover hacia abajo   (vy = +1)
+         * Sujetar mantenido mantiene la dirección; soltar detiene el eje Y.
+         *
+         * Nota: vy = 0 no detiene el actor completamente si vx != 0,
+         * solo detiene el movimiento vertical.
+         */
+        if (btn->pressed[BTN_UP]) {
+            player.vy = -1;
+        }
+        if (btn->pressed[BTN_DOWN]) {
+            player.vy = 1;
+        }
+        if (btn->released[BTN_UP] || btn->released[BTN_DOWN]) {
+            player.vy = 0;
+        }
+
+        /* START (flanco): alternar color de fondo y limpiar pantalla */
+        if (btn->pressed[BTN_START]) {
+            bg_color = (bg_color == COLOR_BLACK) ? COLOR_GREEN : COLOR_BLACK;
+            stm32boy_fill_screen(&g, bg_color);
+        }
+
+        /* ---- 3. Lógica + dibujo -------------------------------------- */
         if (actor_update(&player, now_ms))
         {
             actor_bounce_on_limits(&player, g.width, g.height);
 
-            /* Lógica de dibujo del actor (inline de actor_draw):
-             * 1. Borrar posición anterior con color de fondo.
-             * 2. Dibujar frame actual en posición nueva.            */
             stm32boy_fill_rect(&g, player.prev_x, player.prev_y,
-                               player.w, player.h, COLOR_BLACK);
+                               player.w, player.h, bg_color);
             {
                 const sprite_t *frame = sprite_anim_get_frame(&player.anim);
                 if (frame) {
