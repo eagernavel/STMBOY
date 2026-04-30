@@ -55,7 +55,7 @@ int _write(int file, char *ptr, int len)
 {
     (void)file;
 
-    for (uint8_t i = 0; i < len; i++)
+    for (int i = 0; i < len; i++)
     {
         const uint8_t byte = (uint8_t)ptr[i];
         send_byte_blocking(byte);

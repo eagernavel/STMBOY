@@ -1,4 +1,5 @@
 #include "platform_nucleof411re_buttons.h"
+#include "platform/nucleof411re/systick.h"
 
 #include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_gpio.h"
@@ -15,7 +16,11 @@
 static platform_nucleof411re_buttons_Config s_config;
 static button_state_t                       s_state;
 static bool                                 s_prev[BTN_COUNT];
+static bool                                 s_raw_prev[BTN_COUNT];
+static uint32_t                             s_raw_last_change_ms[BTN_COUNT];
 static bool                                 s_initialized = false;
+
+#define BUTTON_DEBOUNCE_MS 25u
 
 /* -----------------------------------------------------------------------
  * Implementación privada
@@ -50,6 +55,8 @@ void platform_nucleof411re_buttons_init(
     /* Inicializar estado a "todo libre" */
     memset(&s_state, 0, sizeof(s_state));
     memset(s_prev,   0, sizeof(s_prev));
+    memset(s_raw_prev, 0, sizeof(s_raw_prev));
+    memset(s_raw_last_change_ms, 0, sizeof(s_raw_last_change_ms));
 
     LL_GPIO_InitTypeDef gpio_cfg = {0};
     gpio_cfg.Mode      = LL_GPIO_MODE_INPUT;
@@ -69,19 +76,37 @@ void platform_nucleof411re_buttons_init(
 
 void platform_nucleof411re_buttons_update(void)
 {
+    uint32_t now_ms;
+
     if (!s_initialized) {
         return;
     }
 
+    now_ms = systick_millis();
+
     for (int i = 0; i < BTN_COUNT; i++) {
-        bool current = prv_read_button((button_id_t)i);
+        bool raw_current = prv_read_button((button_id_t)i);
 
-        /* Flancos: comparar con estado del frame anterior */
-        s_state.pressed [i] = current && !s_prev[i];   /* 0→1: flanco bajada */
-        s_state.released[i] = !current && s_prev[i];   /* 1→0: flanco subida */
-        s_state.held    [i] = current;
+        /* Detecta cambio en la señal cruda para abrir nueva ventana debounce. */
+        if (raw_current != s_raw_prev[i]) {
+            s_raw_prev[i] = raw_current;
+            s_raw_last_change_ms[i] = now_ms;
+        }
 
-        s_prev[i] = current;
+        s_state.pressed [i] = false;
+        s_state.released[i] = false;
+
+        /* Solo acepta el nuevo estado si permanece estable >= debounce ms. */
+        if ((now_ms - s_raw_last_change_ms[i]) >= BUTTON_DEBOUNCE_MS) {
+            if (s_prev[i] != s_raw_prev[i]) {
+                bool stable = s_raw_prev[i];
+                s_state.pressed [i] = stable && !s_prev[i];
+                s_state.released[i] = !stable && s_prev[i];
+                s_prev[i] = stable;
+            }
+        }
+
+        s_state.held[i] = s_prev[i];
     }
 }
 

@@ -71,6 +71,10 @@ void platform_nucleof411re_buttons_init(
 /**
  * Lee el estado físico de todos los botones y actualiza los flancos.
  *
+ * La señal se filtra con debounce temporal interno (ventana fija en ms),
+ * por lo que pressed/released solo se emiten cuando el estado permanece
+ * estable el tiempo mínimo configurado en la implementación.
+ *
  * Debe llamarse UNA VEZ por frame, antes de consultar button_state_get().
  * No es reentrante.
  */
