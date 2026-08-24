@@ -1,6 +1,6 @@
 # STMBOY
 
-STMBOY es un proyecto bare-metal para STM32 NUCLEO-F411RE que implementa una pequena consola grafica con pantalla TFT ILI9486 en bus paralelo de 8 bits, entrada por botones fisicos y una aplicacion final tipo Pong.
+STMBOY es un proyecto bare-metal para STM32 NUCLEO-F411RE que implementa una API grafica modular para una pantalla ILI9486 en bus paralelo de 8 bits. La aplicacion incluida es una demostracion interactiva de primitivas, texto, entrada y renderizado incremental.
 
 ## Hardware principal
 
@@ -12,14 +12,14 @@ STMBOY es un proyecto bare-metal para STM32 NUCLEO-F411RE que implementa una peq
 ## Estructura
 
 ```text
-source/                         Aplicacion final Pong y soporte newlib
+source/                         Demostracion grafica y soporte newlib
 lib/common/                     Tipos compartidos y HAL abstracto de display
 lib/graphics/                   Primitivas 2D, texto y sprites
 lib/game_engine/                Actor y animacion por frames
 lib/bsp/                        Fachada de inicializacion de placa
 lib/platform/                   Seleccion y adaptacion de plataforma
 lib/platform/nucleof411re/      Reloj, UART, SysTick, botones e ILI9486
-lib/platform/component/ili9486/ Contrato generico del controlador LCD
+lib/platform/component/ili9486/ Driver generico del controlador LCD
 third-party/stm32_driver/       CMSIS, startup y drivers LL de ST
 cmake/toolchain/                Toolchains arm-none-eabi
 ld/                             Linker scripts STM32
@@ -62,4 +62,4 @@ make flash
 
 ## Estado del proyecto
 
-La plataforma principal soportada es `stm32f411re`. El repositorio contiene infraestructura parcial para otras placas STM32F4, pero la aplicacion final y el pinout documentado corresponden a NUCLEO-F411RE.
+La plataforma soportada y validada es `stm32f411re`. Las capas de graficos, modelo de demostracion y driver ILI9486 disponen de pruebas nativas independientes del STM32.

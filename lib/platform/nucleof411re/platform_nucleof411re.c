@@ -3,6 +3,7 @@
 #include "platform/nucleof411re/platform_nucleof411re_serial.h"
 #include "platform/nucleof411re/platform_nucleof411re_ili9486.h"
 #include "platform/nucleof411re/platform_nucleof411re_buttons.h"
+#include "platform/nucleof411re/systick.h"
 
 #include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_pwr.h"
@@ -51,28 +52,28 @@ static void prv_init_serial(void)
 static void prv_init_buttons(void)
 {
     /*
-     * Asignación de pines — fase de diseño:
+     * Asignación de pines
      *
-     *   BTN_UP    → PC0   (libre, clock GPIOC ya habilitado por ILI9486)
-     *   BTN_DOWN  → PC2   (libre)
-     *   BTN_START → PC3   (libre)
+     *   INPUT_UP    -> PC0   (clock GPIOC ya habilitado por ILI9486)
+     *   INPUT_DOWN  -> PC2
+     *   INPUT_START -> PC3
      *
      * Botones conectados entre el pin y GND (active-low).
      * El driver activa el pull-up interno del STM32.
      */
     const platform_nucleof411re_buttons_Config buttons_config = {
         .buttons = {
-            [BTN_UP] = {
+            [INPUT_UP] = {
                 .gpio_clk = LL_AHB1_GRP1_PERIPH_GPIOC,
                 .gpio     = GPIOC,
                 .pin      = LL_GPIO_PIN_0,
             },
-            [BTN_DOWN] = {
+            [INPUT_DOWN] = {
                 .gpio_clk = LL_AHB1_GRP1_PERIPH_GPIOC,
                 .gpio     = GPIOC,
                 .pin      = LL_GPIO_PIN_2,
             },
-            [BTN_START] = {
+            [INPUT_START] = {
                 .gpio_clk = LL_AHB1_GRP1_PERIPH_GPIOC,
                 .gpio     = GPIOC,
                 .pin      = LL_GPIO_PIN_3,
@@ -82,16 +83,40 @@ static void prv_init_buttons(void)
     platform_nucleof411re_buttons_init(buttons_config);
 }
 
-void platform_init(void)
+bool platform_init(void)
 {
     static bool s_initialized = false;
     if (s_initialized) {
-        return;
+        return true;
     }
 
     prv_init_clock();
     prv_init_serial();
-    platform_nucleof411re_ili9486_init();
+    if (!platform_nucleof411re_ili9486_init()) {
+        return false;
+    }
     prv_init_buttons();
+    systick_init(SystemCoreClock);
     s_initialized = true;
+    return true;
+}
+
+const display_hal_t *platform_display(void)
+{
+    return platform_nucleof411re_ili9486_display();
+}
+
+void platform_input_update(void)
+{
+    platform_nucleof411re_buttons_update();
+}
+
+const input_state_t *platform_input_get(void)
+{
+    return platform_nucleof411re_buttons_get();
+}
+
+uint32_t platform_millis(void)
+{
+    return systick_millis();
 }

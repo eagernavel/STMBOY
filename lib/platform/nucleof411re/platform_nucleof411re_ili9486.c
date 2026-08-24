@@ -1,7 +1,7 @@
 #include "platform_nucleof411re_ili9486.h"
+
 #include "platform/component/ili9486/ili9486.h"
 
-#include "stm32f411xe.h"
 #include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_gpio.h"
 #include "stm32f4xx_ll_utils.h"
@@ -12,60 +12,40 @@
 #include "db_lut.h"
 
 #define ILI9486_RES_GPIO GPIOC
-#define ILI9486_RES_PIN  LL_GPIO_PIN_1 //PC1
+#define ILI9486_RES_PIN  LL_GPIO_PIN_1
 
-#define ILI9486_CS_GPIO  GPIOB
-#define ILI9486_CS_PIN   LL_GPIO_PIN_0 //PB0
+#define ILI9486_CS_GPIO GPIOB
+#define ILI9486_CS_PIN  LL_GPIO_PIN_0
 
-#define ILI9486_DCX_GPIO  GPIOA
-#define ILI9486_DCX_PIN  LL_GPIO_PIN_4 //PA4
+#define ILI9486_DCX_GPIO GPIOA
+#define ILI9486_DCX_PIN  LL_GPIO_PIN_4
 
-#define ILI9486_WR_GPIO  GPIOA
-#define ILI9486_WR_PIN  LL_GPIO_PIN_1 //PA1
+#define ILI9486_WR_GPIO GPIOA
+#define ILI9486_WR_PIN  LL_GPIO_PIN_1
 
-#define ILI9486_RD_GPIO  GPIOA
-#define ILI9486_RD_PIN  LL_GPIO_PIN_0 //PA0
+#define ILI9486_RD_GPIO GPIOA
+#define ILI9486_RD_PIN  LL_GPIO_PIN_0
 
-#define ILI9486_DB0_GPIO GPIOA
-#define ILI9486_DB0_PIN  LL_GPIO_PIN_9  //PA9
-#define ILI9486_DB1_GPIO GPIOC
-#define ILI9486_DB1_PIN  LL_GPIO_PIN_7  //PC7
-#define ILI9486_DB2_GPIO GPIOA
-#define ILI9486_DB2_PIN  LL_GPIO_PIN_10  //PA10
-#define ILI9486_DB3_GPIO GPIOB
-#define ILI9486_DB3_PIN  LL_GPIO_PIN_3 //PB3
-#define ILI9486_DB4_GPIO GPIOB
-#define ILI9486_DB4_PIN  LL_GPIO_PIN_5 //PB5
-#define ILI9486_DB5_GPIO GPIOB
-#define ILI9486_DB5_PIN  LL_GPIO_PIN_4 //PB4
-#define ILI9486_DB6_GPIO GPIOB
-#define ILI9486_DB6_PIN  LL_GPIO_PIN_10 //PB10
-#define ILI9486_DB7_GPIO GPIOA
-#define ILI9486_DB7_PIN  LL_GPIO_PIN_8 //PA8
+#define ILI9486_DB0_PIN LL_GPIO_PIN_9
+#define ILI9486_DB1_PIN LL_GPIO_PIN_7
+#define ILI9486_DB2_PIN LL_GPIO_PIN_10
+#define ILI9486_DB3_PIN LL_GPIO_PIN_3
+#define ILI9486_DB4_PIN LL_GPIO_PIN_5
+#define ILI9486_DB5_PIN LL_GPIO_PIN_4
+#define ILI9486_DB6_PIN LL_GPIO_PIN_10
+#define ILI9486_DB7_PIN LL_GPIO_PIN_8
 
-#define ILI9486_WIDTH   320
-#define ILI9486_HEIGHT  480
+#define ILI9486_WIDTH  320U
+#define ILI9486_HEIGHT 480U
 
-#define COLOR_BLACK 0x0000
-#define COLOR_WHITE 0xFFFF
-#define COLOR_RED   0xF800
-#define COLOR_GREEN 0x07E0
-#define COLOR_BLUE  0x001F
+static ili9486_t s_ili9486;
 
-#define ILI9486_MADCTL_MY   0x80
-#define ILI9486_MADCTL_MX   0x40
-#define ILI9486_MADCTL_MV   0x20
-#define ILI9486_MADCTL_BGR  0x08
-
-
-
-
-static void prv_init_ili9486_interface_pins(void)
+static void init_interface_pins(void)
 {
-    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOC);
-    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
     LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
-    
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOC);
+
     LL_GPIO_InitTypeDef gpio = {0};
     gpio.Mode = LL_GPIO_MODE_OUTPUT;
     gpio.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
@@ -73,223 +53,84 @@ static void prv_init_ili9486_interface_pins(void)
     gpio.Pull = LL_GPIO_PULL_NO;
 
     gpio.Pin = ILI9486_RES_PIN | ILI9486_DB1_PIN;
-    LL_GPIO_Init(GPIOC, &gpio);  //GPIOC
+    LL_GPIO_Init(GPIOC, &gpio);
 
-    gpio.Pin = ILI9486_WR_PIN | ILI9486_RD_PIN | ILI9486_DB0_PIN | ILI9486_DB2_PIN | ILI9486_DB7_PIN | ILI9486_DCX_PIN;
-    LL_GPIO_Init(GPIOA, &gpio);  //GPIOA
+    gpio.Pin = ILI9486_WR_PIN | ILI9486_RD_PIN | ILI9486_DB0_PIN |
+               ILI9486_DB2_PIN | ILI9486_DB7_PIN | ILI9486_DCX_PIN;
+    LL_GPIO_Init(GPIOA, &gpio);
 
-    gpio.Pin = ILI9486_CS_PIN | ILI9486_DB3_PIN | ILI9486_DB4_PIN | ILI9486_DB5_PIN | ILI9486_DB6_PIN;
-    LL_GPIO_Init(GPIOB, &gpio);  //GPIOB
-    
+    gpio.Pin = ILI9486_CS_PIN | ILI9486_DB3_PIN | ILI9486_DB4_PIN |
+               ILI9486_DB5_PIN | ILI9486_DB6_PIN;
+    LL_GPIO_Init(GPIOB, &gpio);
 
-    // ESta parte es para definir un estado en concreto al inicio
-
-    LL_GPIO_SetOutputPin(ILI9486_RES_GPIO, ILI9486_RES_PIN); //RES = 1
-    LL_GPIO_SetOutputPin(ILI9486_CS_GPIO,  ILI9486_CS_PIN); // CS = 1 --> ACTIVO ESTA EN MODO BAJO
-    LL_GPIO_SetOutputPin(ILI9486_DCX_GPIO, ILI9486_DCX_PIN); // DCX = 1 --> MODO DATA
-    LL_GPIO_SetOutputPin(ILI9486_WR_GPIO,  ILI9486_WR_PIN);  // WR = 1 (inactivo)
-    LL_GPIO_SetOutputPin(ILI9486_RD_GPIO,  ILI9486_RD_PIN); // RD = 1 (inactivo)
+    LL_GPIO_SetOutputPin(ILI9486_RES_GPIO, ILI9486_RES_PIN);
+    LL_GPIO_SetOutputPin(ILI9486_CS_GPIO, ILI9486_CS_PIN);
+    LL_GPIO_SetOutputPin(ILI9486_DCX_GPIO, ILI9486_DCX_PIN);
+    LL_GPIO_SetOutputPin(ILI9486_WR_GPIO, ILI9486_WR_PIN);
+    LL_GPIO_SetOutputPin(ILI9486_RD_GPIO, ILI9486_RD_PIN);
 }
 
-static void prv_db70_set_as_outputs(void)
+static void set_data_bus_as_output(void)
 {
     LL_GPIO_InitTypeDef gpio = {0};
-    gpio.Mode       = LL_GPIO_MODE_OUTPUT;
-    gpio.Speed      = LL_GPIO_SPEED_FREQ_VERY_HIGH;
+    gpio.Mode = LL_GPIO_MODE_OUTPUT;
+    gpio.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
     gpio.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-    gpio.Pull       = LL_GPIO_PULL_NO;
+    gpio.Pull = LL_GPIO_PULL_NO;
 
     gpio.Pin = ILI9486_DB1_PIN;
-    LL_GPIO_Init(GPIOC, &gpio);  //GPIOC
+    LL_GPIO_Init(GPIOC, &gpio);
 
-    gpio.Pin =ILI9486_DB0_PIN | ILI9486_DB2_PIN | ILI9486_DB7_PIN;
-    LL_GPIO_Init(GPIOA, &gpio);  //GPIOA
+    gpio.Pin = ILI9486_DB0_PIN | ILI9486_DB2_PIN | ILI9486_DB7_PIN;
+    LL_GPIO_Init(GPIOA, &gpio);
 
-    gpio.Pin = ILI9486_DB3_PIN | ILI9486_DB4_PIN | ILI9486_DB5_PIN | ILI9486_DB6_PIN;
-    LL_GPIO_Init(GPIOB, &gpio);  //GPIOB
-
+    gpio.Pin = ILI9486_DB3_PIN | ILI9486_DB4_PIN |
+               ILI9486_DB5_PIN | ILI9486_DB6_PIN;
+    LL_GPIO_Init(GPIOB, &gpio);
 }
 
-static void prv_db70_set_as_inputs(void)
-{
-    LL_GPIO_InitTypeDef gpio = {0};
-    gpio.Mode       = LL_GPIO_MODE_INPUT;
-    gpio.Speed      = LL_GPIO_SPEED_FREQ_VERY_HIGH;
-    gpio.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-    gpio.Pull       = LL_GPIO_PULL_NO;
-
-    gpio.Pin = ILI9486_DB1_PIN;
-    LL_GPIO_Init(GPIOC, &gpio);  //GPIOC
-
-    gpio.Pin =ILI9486_DB0_PIN | ILI9486_DB2_PIN | ILI9486_DB7_PIN;
-    LL_GPIO_Init(GPIOA, &gpio);  //GPIOA
-
-    gpio.Pin = ILI9486_DB3_PIN | ILI9486_DB4_PIN | ILI9486_DB5_PIN | ILI9486_DB6_PIN;
-    LL_GPIO_Init(GPIOB, &gpio);  //GPIOB
-
-}
-
-static inline void prv_res_pin_set(void)
+static inline void res_set(void)
 {
     ILI9486_RES_GPIO->BSRR = ILI9486_RES_PIN;
 }
 
-static inline void prv_res_pin_reset(void)
+static inline void res_reset(void)
 {
     ILI9486_RES_GPIO->BSRR = (uint32_t)ILI9486_RES_PIN << 16;
 }
 
-static inline void prv_cs_pin_set(void) //seleccionar o no la pantalla
+static inline void cs_set(void)
 {
-    ILI9486_CS_GPIO->BSRR = ILI9486_CS_PIN; //INACTIVO
+    ILI9486_CS_GPIO->BSRR = ILI9486_CS_PIN;
 }
 
-static inline void prv_cs_pin_reset(void)
+static inline void cs_reset(void)
 {
-    ILI9486_CS_GPIO->BSRR = (uint32_t) ILI9486_CS_PIN << 16; //ACTIVO
+    ILI9486_CS_GPIO->BSRR = (uint32_t)ILI9486_CS_PIN << 16;
 }
 
-static inline void prv_dcx_pin_set(void)
+static inline void dcx_set(void)
 {
-    ILI9486_DCX_GPIO->BSRR = ILI9486_DCX_PIN; //le dice que tipo de dato es, COMMAND o DATA
+    ILI9486_DCX_GPIO->BSRR = ILI9486_DCX_PIN;
 }
 
-static inline void prv_dcx_pin_reset(void)
+static inline void dcx_reset(void)
 {
-    ILI9486_DCX_GPIO->BSRR =(uint32_t) ILI9486_DCX_PIN << 16; 
+    ILI9486_DCX_GPIO->BSRR = (uint32_t)ILI9486_DCX_PIN << 16;
 }
 
-static inline void prv_wr_pin_set(void)
+static inline void wr_set(void)
 {
-    ILI9486_WR_GPIO->BSRR = ILI9486_WR_PIN; // 
+    ILI9486_WR_GPIO->BSRR = ILI9486_WR_PIN;
 }
 
-static inline void prv_wr_pin_reset(void)
+static inline void wr_reset(void)
 {
     ILI9486_WR_GPIO->BSRR = (uint32_t)ILI9486_WR_PIN << 16;
 }
 
-static inline void prv_rd_pin_set(void)
-{
-    ILI9486_RD_GPIO->BSRR = ILI9486_RD_PIN; //
-}
-
-static inline void prv_rd_pin_reset(void)
-{
-    ILI9486_RD_GPIO->BSRR = (uint32_t) ILI9486_RD_PIN << 16;
-}
-
-/*static inline void prv_db70_write_BSRR_NOT_optimized(uint8_t data)
-{
-    uint32_t bsrrA = 0;
-    uint32_t bsrrB = 0;
-    uint32_t bsrrC = 0;
-
-    bsrrA |= ((uint32_t)(ILI9486_DB0_PIN | ILI9486_DB2_PIN | ILI9486_DB7_PIN) << 16);
-    bsrrB |= ((uint32_t)(ILI9486_DB3_PIN | ILI9486_DB4_PIN | ILI9486_DB5_PIN | ILI9486_DB6_PIN) << 16);
-    bsrrC |= ((uint32_t)(ILI9486_DB1_PIN) << 16); // Empezamos a limpiar los pines
-
-    if (data & (1 << 0))
-        bsrrA |= ILI9486_DB0_PIN;
-    if (data & (1 << 1))
-        bsrrC |= ILI9486_DB1_PIN;
-    if (data & (1 << 2))
-        bsrrA |= ILI9486_DB2_PIN;
-    if (data & (1 << 3))
-        bsrrB |= ILI9486_DB3_PIN;
-    if (data & (1 << 4))
-        bsrrB |= ILI9486_DB4_PIN;
-    if (data & (1 << 5))
-        bsrrB |= ILI9486_DB5_PIN;
-    if (data & (1 << 6))
-        bsrrB |= ILI9486_DB6_PIN;
-    if (data & (1 << 7))
-        bsrrA |= ILI9486_DB7_PIN;
-
-    GPIOA ->BSRR = bsrrA;
-    GPIOB ->BSRR = bsrrB;
-    GPIOC ->BSRR = bsrrC;
-}*/
-
-static inline void prv_db70_write(uint8_t data)
-{
-    const DBLutEntry *e = &g_dbLut[data];
-
-    GPIOA->BSRR = e->bsrrA;
-    GPIOB->BSRR = e->bsrrB;
-    GPIOC->BSRR = e->bsrrC;
-}
-
-
-static uint8_t prv_db70_read(void)
-{
-    uint8_t data = 0;
-    prv_db70_set_as_inputs();
-
-    LL_GPIO_ResetOutputPin(ILI9486_RD_GPIO, ILI9486_RD_PIN); // Activar señal de lectura (RD = 0)
-
-    if (LL_GPIO_IsInputPinSet(ILI9486_DB0_GPIO, ILI9486_DB0_PIN))
-        data |= (1 << 0);
-    if (LL_GPIO_IsInputPinSet(ILI9486_DB1_GPIO, ILI9486_DB1_PIN))
-        data |= (1 << 1);
-    if (LL_GPIO_IsInputPinSet(ILI9486_DB2_GPIO, ILI9486_DB2_PIN))
-        data |= (1 << 2);
-    if (LL_GPIO_IsInputPinSet(ILI9486_DB3_GPIO, ILI9486_DB3_PIN))
-        data |= (1 << 3);
-    if (LL_GPIO_IsInputPinSet(ILI9486_DB4_GPIO, ILI9486_DB4_PIN))
-        data |= (1 << 4);
-    if (LL_GPIO_IsInputPinSet(ILI9486_DB5_GPIO, ILI9486_DB5_PIN))
-        data |= (1 << 5);
-    if (LL_GPIO_IsInputPinSet(ILI9486_DB6_GPIO, ILI9486_DB6_PIN))
-        data |= (1 << 6);
-    if (LL_GPIO_IsInputPinSet(ILI9486_DB7_GPIO, ILI9486_DB7_PIN))
-        data |= (1 << 7);
-
-    LL_GPIO_SetOutputPin(ILI9486_RD_GPIO, ILI9486_RD_PIN); // Desactivar señal de lectura (RD = 1)
-
-    prv_db70_set_as_outputs();
-
-    return data;
-    // Para conseguir esto necesitamos varias cosas:
-    // 1. Configurar los pines de datos como entrada
-    // 2. Leer el estado de cada pin y construir el byte de datos
-    // 3. Volver a configurar los pines de datos como salida 
-}
-
-//TESTS CON LOS LEDS//
-
-static void test_db70_write_patterns(void)
-{
-    const uint8_t patterns[] = {
-        0x00, 0xFF, 0x55, 0xAA,
-        0x0F, 0xF0, 0x81, 0x7E
-    };
-
-    for (unsigned i = 0; i < sizeof(patterns); ++i)
-    {
-        uint8_t v = patterns[i];
-
-        prv_db70_write(v);
-
-        
-        for (volatile uint32_t d = 0; d < 1000000; ++d) { }
-    }
-}
-
-void platform_nucleof411re_ili9486_selftest(void)
-{
-    prv_init_ili9486_interface_pins();
-    prv_db70_set_as_outputs();
-    test_db70_write_patterns();
-
-    prv_db70_write(0xFF); // valor final que queda escrito en los pines
-}
-
-
-//INicializamos la pantalla con el objetivo de rellenarla de rojo//
 static inline void bus_cycle_delay(void)
 {
-    /* Extra settle time keeps 8080 write pulses valid at higher core clocks. */
     __asm volatile("nop");
     __asm volatile("nop");
     __asm volatile("nop");
@@ -297,278 +138,133 @@ static inline void bus_cycle_delay(void)
     __asm volatile("nop");
     __asm volatile("nop");
 }
-/*static void bus_cycle_delay(volatile uint32_t count)
-{
-    while (count--) {
-        __asm__("nop");
-    }
-}*/
 
-static inline void prv_pulse_wr(void)
+static inline void pulse_wr(void)
 {
-    prv_wr_pin_reset();  // WR LOW
-    bus_cycle_delay();   // WR LOW mínimo
-    prv_wr_pin_set();
-    bus_cycle_delay();   // WR HIGH estabilidad
+    wr_reset();
+    bus_cycle_delay();
+    wr_set();
+    bus_cycle_delay();
 }
 
-
-static inline void prv_write_command(uint8_t cmd)
+static inline void write_bus(uint8_t data)
 {
-    prv_cs_pin_reset();      // seleccionamos pantalla
-    prv_dcx_pin_reset();     // COMMAND
-    prv_db70_write(cmd);     // pone el comando en D0..D7
-    prv_pulse_wr();          // pulso de WR
-    prv_cs_pin_set();      // deseleccionamos pantalla
+    const DBLutEntry *entry = &g_dbLut[data];
+    GPIOA->BSRR = entry->bsrrA;
+    GPIOB->BSRR = entry->bsrrB;
+    GPIOC->BSRR = entry->bsrrC;
 }
 
-static inline void prv_write_data(uint8_t data)
+static void bus_set_reset(void *context, bool asserted)
 {
-    prv_cs_pin_reset();      
-    prv_dcx_pin_set();       
-    prv_db70_write(data);    
-    prv_pulse_wr();          
-    prv_cs_pin_set();        
-}
-
-
-static inline void prv_ili9486_set_madctl(uint8_t madctl)
-{
-    prv_write_command(0x36);
-    prv_write_data(madctl); // MY MX MV ML RGB MH
-}
-
-typedef enum {
-    ILI9486_ROT_0,
-    ILI9486_ROT_90,
-    ILI9486_ROT_180,
-    ILI9486_ROT_270
-} ili9486_rotation_t;
-
-static inline void ili9486_set_rotation(ili9486_rotation_t rot)
-{
-    uint8_t madctl = ILI9486_MADCTL_BGR; // normalmente BGR en muchos módulos
-
-    switch (rot) {
-    case ILI9486_ROT_0:
-        madctl |= ILI9486_MADCTL_MX; // ejemplo común
-        break;
-    case ILI9486_ROT_90:
-        madctl |= ILI9486_MADCTL_MV | ILI9486_MADCTL_MX;
-        break;
-    case ILI9486_ROT_180:
-        madctl |= ILI9486_MADCTL_MY;
-        break;
-    case ILI9486_ROT_270:
-        madctl |= ILI9486_MADCTL_MV | ILI9486_MADCTL_MY;
-        break;
-    }
-
-    prv_ili9486_set_madctl(madctl);
-}
-
-
-static void prv_ili9486_first_init(void)
-{
-    prv_res_pin_reset();
-    LL_mDelay(10);
-    prv_res_pin_set();
-    LL_mDelay(120);
-
-    prv_write_command(0x01); /* Software Reset */
-    LL_mDelay(5);
-
-    prv_write_command(0x11); /* Sleep OUT */
-    LL_mDelay(120);
-
-    //Pixel Format 16 bpp RGB565
-    prv_write_command(0x3A);
-    prv_write_data(0x55);
-
-    // Memory Access Control (MADCTL) - fuerza orientación
-    // MY para invertir Y (origen arriba-izquierda)
-    prv_write_command(0x36);
-    prv_write_data(0x08);   
-
-    
-    prv_write_command(0x34);
-
-
-    //Display ON
-    prv_write_command(0x29);
-    LL_mDelay(20);
-}
-
-
-
-static void prv_set_address_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
-{
-    // Column Address Set (0x2A)
-    prv_write_command(0x2A);
-    prv_write_data(x0 >> 8);
-    prv_write_data(x0 & 0xFF);
-    prv_write_data(x1 >> 8);
-    prv_write_data(x1 & 0xFF);
-
-    // Page Address Set (0x2B)
-    prv_write_command(0x2B);
-    prv_write_data(y0 >> 8);
-    prv_write_data(y0 & 0xFF);
-    prv_write_data(y1 >> 8);
-    prv_write_data(y1 & 0xFF);
-}
-
-#define SEND_PIXEL()                        \
-    do {                                    \
-        prv_db70_write(hi);                 \
-        prv_pulse_wr();                     \
-        prv_db70_write(lo);                 \
-        prv_pulse_wr();                     \
-    } while (0)
-
-static void prv_fill_screen(uint16_t color)
-{
-    uint32_t total_pixels = (uint32_t)ILI9486_WIDTH * (uint32_t)ILI9486_HEIGHT;
-    uint8_t hi = color >> 8;
-    uint8_t lo = color & 0xFF;
-
-    prv_set_address_window(0, 0, ILI9486_WIDTH - 1, ILI9486_HEIGHT - 1); //pequeño offset en y
-
-    prv_write_command(0x2C);
-
-    prv_cs_pin_reset();
-    prv_dcx_pin_set(); // DATA
-
-    uint32_t blocks4 = total_pixels >> 2;   // total_pixels / 4
-    uint32_t rem     = total_pixels & 0x3;  // total_pixels % 4
-
-    while (blocks4--)
-    {
-        SEND_PIXEL();
-        SEND_PIXEL();
-        SEND_PIXEL();
-        SEND_PIXEL();
-    }
-
-    while (rem--)
-    {
-        SEND_PIXEL();
-    }
-
-    prv_cs_pin_set();
-}
-
-
-/*void prv_initialize_display(void)
-{
-    prv_init_ili9486_interface_pins();
-    prv_db70_set_as_outputs();   
-    prv_ili9486_first_init();    
-}*/
-
-void platform_nucleof411re_ili9486_test_fill(uint16_t color)
-{
-    prv_fill_screen(color);      
-}
-
-void platform_nucleof411re_ili9486_test_colors_cycle(void)
-{
-    while (1)
-    {
-        // ROJO
-        prv_fill_screen(0xF800);
-        bus_cycle_delay();
-
-        // VERDE
-        prv_fill_screen(0x07E0);
-        bus_cycle_delay();
-
-        // AZUL
-        prv_fill_screen(0x001F);
-        bus_cycle_delay();
+    (void)context;
+    if (asserted) {
+        res_reset();
+    } else {
+        res_set();
     }
 }
 
-void ili9486_set_addr_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
+static void bus_write_command(void *context, uint8_t command)
 {
-    prv_set_address_window(x0, y0, x1, y1);
+    (void)context;
+    cs_reset();
+    dcx_reset();
+    write_bus(command);
+    pulse_wr();
+    cs_set();
 }
 
-void ili9486_begin_pixels(void)
+static void bus_write_data(void *context, uint8_t data)
 {
-    prv_write_command(0x2C); // Memory Write
-    prv_cs_pin_reset(); // seleccionamos pantalla
-    prv_dcx_pin_set(); // DATA
+    (void)context;
+    cs_reset();
+    dcx_set();
+    write_bus(data);
+    pulse_wr();
+    cs_set();
 }
 
-void ili9486_end_pixels(void)
+static void bus_begin_pixels(void *context)
 {
-    prv_cs_pin_set();     // deseleccionamos pantalla
+    (void)context;
+    cs_reset();
+    dcx_set();
 }
 
-void ili9486_push_color(uint16_t color, uint32_t count)
+static void bus_end_pixels(void *context)
 {
-    uint8_t hi = color >> 8, lo = color & 0xFF; // Separamos el color de 16 bits en dos partes de 8 bits para enviarlo por la interfaz de 8 bits
-    while (count--) { 
-        prv_db70_write(hi); prv_pulse_wr(); // Enviamos la parte alta del color
-        prv_db70_write(lo); prv_pulse_wr(); // Enviamos la parte baja del color
+    (void)context;
+    cs_set();
+}
+
+static void bus_push_color(void *context, uint16_t color, uint32_t count)
+{
+    (void)context;
+    uint8_t high = (uint8_t)(color >> 8);
+    uint8_t low = (uint8_t)(color & 0xFFU);
+
+    while (count-- > 0U) {
+        write_bus(high);
+        pulse_wr();
+        write_bus(low);
+        pulse_wr();
     }
 }
 
-/*void ili9486_push_pixels_rgb565(const uint16_t *pixels, uint32_t count)
+static void bus_push_pixels(void *context,
+                            const uint16_t *pixels,
+                            uint32_t count)
 {
-    while (count--) {
-        uint16_t c = *pixels++;
-        prv_db70_write(c >> 8); prv_pulse_wr();
-        prv_db70_write(c & 0xFF); prv_pulse_wr();
-    }
-}*/
-
-void ili9486_push_pixels_rgb565(const uint16_t *pixels, uint32_t count)
-{
-    const uint8_t *p = (const uint8_t*)pixels;
-    while (count--) {
-        // En little-endian (STM32), p[1] es el MSB y p[0] el LSB
-        prv_db70_write(p[1]); prv_pulse_wr();
-        prv_db70_write(p[0]); prv_pulse_wr();
-        p += 2;
+    (void)context;
+    while (count-- > 0U) {
+        uint16_t color = *pixels++;
+        write_bus((uint8_t)(color >> 8));
+        pulse_wr();
+        write_bus((uint8_t)(color & 0xFFU));
+        pulse_wr();
     }
 }
 
-// TODO implementation of 8 bit parallel interface functions
-
-void platform_nucleof411re_ili9486_init(void)
+static void bus_delay_ms(void *context, uint32_t milliseconds)
 {
-    static uint8_t s_initialized = 0;
-    if (s_initialized) {
-        return;
+    (void)context;
+    LL_mDelay(milliseconds);
+}
+
+bool platform_nucleof411re_ili9486_init(void)
+{
+    if (s_ili9486.initialized) {
+        return true;
     }
-    
-    // TODO set function pointers to function implementations
-    prv_init_ili9486_interface_pins();
-    const ili9486_8bitParallelInterface interface = {
-        .res_pin_set = prv_res_pin_set,
-        .res_pin_reset = prv_res_pin_reset,
-        .cs_pin_set = prv_cs_pin_set,
-        .cs_pin_reset = prv_cs_pin_reset,
-        .dcx_pin_set = prv_dcx_pin_set,
-        .dcx_pin_reset = prv_dcx_pin_reset,
-        .wrx_pin_set = prv_wr_pin_set,
-        .wrx_pin_reset = prv_wr_pin_reset,
-        .rdx_pin_set = prv_rd_pin_set,
-        .rdx_pin_reset = prv_rd_pin_reset,
-        .db70_write = prv_db70_write,
-        .db70_read = prv_db70_read,
+
+    init_interface_pins();
+    set_data_bus_as_output();
+
+    const ili9486_bus_t bus = {
+        .context = NULL,
+        .set_reset = bus_set_reset,
+        .write_command = bus_write_command,
+        .write_data = bus_write_data,
+        .begin_pixels = bus_begin_pixels,
+        .end_pixels = bus_end_pixels,
+        .push_color = bus_push_color,
+        .push_pixels_rgb565 = bus_push_pixels,
+        .delay_ms = bus_delay_ms,
     };
-    ili9486_init(interface);
-    prv_db70_set_as_outputs();   
-    prv_ili9486_first_init(); 
-    s_initialized = 1;
+    const ili9486_config_t config = {
+        .width = ILI9486_WIDTH,
+        .height = ILI9486_HEIGHT,
+        .mirror_x = true,
+        .mirror_y = false,
+        .swap_xy = false,
+        .bgr = true,
+    };
+
+    return ili9486_init(&s_ili9486, &bus, &config);
 }
 
-// Wrappers públicos para inicializar y limpiar pantalla desde main.c
-
-void ili9486_clear_screen(uint16_t color)
+const display_hal_t *platform_nucleof411re_ili9486_display(void)
 {
-    prv_fill_screen(color);
+    return ili9486_display(&s_ili9486);
 }

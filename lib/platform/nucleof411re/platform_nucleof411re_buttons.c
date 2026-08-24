@@ -14,10 +14,10 @@
  * s_prev    → estado físico del frame anterior (para calcular flancos).
  * ----------------------------------------------------------------------- */
 static platform_nucleof411re_buttons_Config s_config;
-static button_state_t                       s_state;
-static bool                                 s_prev[BTN_COUNT];
-static bool                                 s_raw_prev[BTN_COUNT];
-static uint32_t                             s_raw_last_change_ms[BTN_COUNT];
+static input_state_t                        s_state;
+static bool                                 s_prev[INPUT_BUTTON_COUNT];
+static bool                                 s_raw_prev[INPUT_BUTTON_COUNT];
+static uint32_t                             s_raw_last_change_ms[INPUT_BUTTON_COUNT];
 static bool                                 s_initialized = false;
 
 #define BUTTON_DEBOUNCE_MS 25u
@@ -33,7 +33,7 @@ static bool                                 s_initialized = false;
  * Pin a nivel bajo  (0) → botón pulsado   → devuelve true.
  * Pin a nivel alto  (1) → botón libre     → devuelve false.
  */
-static inline bool prv_read_button(button_id_t id)
+static inline bool prv_read_button(input_button_t id)
 {
     return !LL_GPIO_IsInputPinSet(s_config.buttons[id].gpio,
                                   s_config.buttons[id].pin);
@@ -63,7 +63,7 @@ void platform_nucleof411re_buttons_init(
     gpio_cfg.Pull      = LL_GPIO_PULL_UP;   /* Pull-up interno — botón a GND */
     gpio_cfg.Speed     = LL_GPIO_SPEED_FREQ_LOW;
 
-    for (int i = 0; i < BTN_COUNT; i++) {
+    for (int i = 0; i < INPUT_BUTTON_COUNT; i++) {
         /* Habilitar clock del puerto si no lo está ya */
         LL_AHB1_GRP1_EnableClock(config.buttons[i].gpio_clk);
 
@@ -84,8 +84,8 @@ void platform_nucleof411re_buttons_update(void)
 
     now_ms = systick_millis();
 
-    for (int i = 0; i < BTN_COUNT; i++) {
-        bool raw_current = prv_read_button((button_id_t)i);
+    for (int i = 0; i < INPUT_BUTTON_COUNT; i++) {
+        bool raw_current = prv_read_button((input_button_t)i);
 
         /* Detecta cambio en la señal cruda para abrir nueva ventana debounce. */
         if (raw_current != s_raw_prev[i]) {
@@ -110,7 +110,7 @@ void platform_nucleof411re_buttons_update(void)
     }
 }
 
-const button_state_t *platform_nucleof411re_buttons_get(void)
+const input_state_t *platform_nucleof411re_buttons_get(void)
 {
     return &s_state;
 }

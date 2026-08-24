@@ -21,17 +21,13 @@
             }
         },
         {
-            "name": "stm32f412zg",
-            "description": "Build for STM32F412ZG",
+            "name": "host-tests",
+            "description": "Build native unit tests",
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/build/stm32f412zg",
-            "toolchainFile": "${sourceDir}/cmake/toolchain/stm32f412.cmake",
+            "binaryDir": "${sourceDir}/build/host-tests",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_C_FLAGS_DEBUG": "-O0 -g3",
-                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "STM32F4xx_TARGET": "STM32F412Zx",
-                "PLATFORM_TARGET": "PLATFORM_NUCLEOF412ZG"
+                "STM32BOY_BUILD_HOST_TESTS": "ON"
             }
         }
     ],
@@ -43,9 +39,9 @@
             "jobs": 4
         },
         {
-            "name": "stm32f412zg",
-            "description": "Build using the stm32f412zg configuration",
-            "configurePreset": "stm32f412zg",
+            "name": "host-tests",
+            "description": "Build native unit tests",
+            "configurePreset": "host-tests",
             "jobs": 4
         }
     ]

@@ -35,6 +35,7 @@ platform_init()
   -> prv_init_serial()
   -> platform_nucleof411re_ili9486_init()
   -> prv_init_buttons()
+  -> systick_init()
 ```
 
 El orden es deliberado:
@@ -68,4 +69,4 @@ Para reducir coste por pixel:
 
 ## Notas de arquitectura
 
-Actualmente este modulo contiene tanto acceso fisico a pines como parte del protocolo ILI9486. Es aceptable como resultado funcional de bring-up hardware, pero la evolucion recomendada es mover comandos y secuencias genericas al componente `lib/platform/component/ili9486`.
+Este modulo implementa solo la adaptacion fisica: GPIO, pulsos de escritura, temporizacion y transferencia RGB565. Los comandos, la secuencia de inicializacion y las ventanas de direccion pertenecen al componente generico `lib/platform/component/ili9486`.

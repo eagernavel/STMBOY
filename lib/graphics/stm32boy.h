@@ -1,6 +1,7 @@
 #ifndef STM32BOY_H  
 #define STM32BOY_H
 
+#include <stdbool.h>
 #include <stdint.h>
 #include "common/types.h"       /* sprite_t, rect_t, colores RGB565, stm32boy_color_t */
 #include "common/display_hal.h" /* display_hal_t — interfaz abstracta del display */
@@ -47,8 +48,7 @@ typedef struct {
 /* -----------------------------------------------------------------------
  * Inicialización
  * ----------------------------------------------------------------------- */
-void stm32boy_init(stm32boy_t *g, uint16_t width, uint16_t height,
-                   const display_hal_t *display);
+bool stm32boy_init(stm32boy_t *g, const display_hal_t *display);
 
 /* -----------------------------------------------------------------------
  * Primitivas 2D

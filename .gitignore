@@ -3,6 +3,7 @@ build/
 Build/
 Debug/
 Release/
+docs/
 
 # Archivos objeto y compilados
 *.o

@@ -1,30 +1,45 @@
 #ifndef PLATFORM_COMPONENT_ILI9486_H
 #define PLATFORM_COMPONENT_ILI9486_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
+#include "common/display_hal.h"
+
+/* Operaciones físicas que debe proporcionar la plataforma. */
 typedef struct {
-    // Function interfaces to control External Reset Pin
-    void (*res_pin_set)(void);
-    void (*res_pin_reset)(void);
-    // Function interfaces to control Chip Select Pin
-    void (*cs_pin_set)(void);
-    void (*cs_pin_reset)(void);
-    // Function interfaces to control Data/Command Pin
-    void (*dcx_pin_set)(void);
-    void (*dcx_pin_reset)(void);
-    // Function interfaces to control Write Singal Pin
-    void (*wrx_pin_set)(void);
-    void (*wrx_pin_reset)(void);
-    // Function interfaces to control Read Singal Pin
-    void (*rdx_pin_set)(void);
-    void (*rdx_pin_reset)(void);
-    // Function interface to write DB[7:0]
-    void (*db70_write)(uint8_t data);
-    // Function interface to read DB[7:0]
-    uint8_t (*db70_read)(void);
-} ili9486_8bitParallelInterface;
+    void *context;
+    void (*set_reset)(void *context, bool asserted);
+    void (*write_command)(void *context, uint8_t command);
+    void (*write_data)(void *context, uint8_t data);
+    void (*begin_pixels)(void *context);
+    void (*end_pixels)(void *context);
+    void (*push_color)(void *context, uint16_t color, uint32_t count);
+    void (*push_pixels_rgb565)(void *context,
+                               const uint16_t *pixels,
+                               uint32_t count);
+    void (*delay_ms)(void *context, uint32_t milliseconds);
+} ili9486_bus_t;
 
-void ili9486_init(ili9486_8bitParallelInterface interface);
+typedef struct {
+    ili9486_bus_t bus;
+    display_hal_t display;
+    bool initialized;
+} ili9486_t;
 
-#endif
+typedef struct {
+    uint16_t width;
+    uint16_t height;
+    bool mirror_x;
+    bool mirror_y;
+    bool swap_xy;
+    bool bgr;
+} ili9486_config_t;
+
+bool ili9486_init(ili9486_t *device,
+                  const ili9486_bus_t *bus,
+                  const ili9486_config_t *config);
+
+const display_hal_t *ili9486_display(const ili9486_t *device);
+
+#endif /* PLATFORM_COMPONENT_ILI9486_H */

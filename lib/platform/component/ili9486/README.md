@@ -7,34 +7,21 @@ Este directorio define el contrato generico del controlador LCD ILI9486. Su obje
 | Archivo | Responsabilidad |
 |---|---|
 | `ili9486.h` | Interfaz publica del componente |
-| `ili9486.c` | Registro de la interfaz fisica inyectada |
+| `ili9486.c` | Protocolo, inicializacion y adaptacion a `display_hal_t` |
 | `CMakeLists.txt` | Biblioteca estatica `COMPONENT_ILI9486` |
 
 ## Diseño
 
-La estructura `ili9486_8bitParallelInterface` modela las senales de un bus paralelo 8080:
+La estructura `ili9486_bus_t` define las operaciones fisicas que debe proporcionar cualquier plataforma:
 
-- `RES`;
-- `CS`;
-- `DCX`;
-- `WRX`;
-- `RDX`;
-- `DB[7:0]` para lectura y escritura.
+- control de reset;
+- escritura de comandos y datos;
+- inicio y fin de un flujo de pixeles;
+- transferencia optimizada de colores y buffers RGB565;
+- retardo en milisegundos.
 
-El componente no incluye tipos STM32 ni accede a registros. La plataforma concreta proporciona callbacks para manipular pines fisicos.
+El componente no incluye tipos STM32 ni accede a registros. La plataforma concreta proporciona callbacks para el transporte fisico y el componente conserva el protocolo ILI9486.
 
 ## Estado actual
 
-`ili9486_init()` almacena la interfaz inyectada. La secuencia de inicializacion y las funciones de pixel stream todavia estan implementadas en `platform_nucleof411re_ili9486.c`.
-
-Esta distribucion fue util durante el bring-up hardware porque permitio validar rapidamente pines, tiempos y comandos. Como mejora futura, conviene mover al componente generico:
-
-- constantes de comandos ILI9486;
-- `write_command`;
-- `write_data`;
-- `set_addr_window`;
-- `begin_pixels`;
-- `push_color`;
-- `push_pixels_rgb565`.
-
-La plataforma deberia quedarse solo con GPIO, `BSRR`, temporizacion y mapeo fisico de pines.
+`ili9486_init()` valida e inyecta el bus, ejecuta el reset y la secuencia de configuracion RGB565, y publica una instancia de `display_hal_t` con contexto y dimensiones. Las ventanas de direccion y el comando de escritura de memoria tambien se resuelven en este componente.

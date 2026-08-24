@@ -113,11 +113,22 @@ static inline int16_t clamp16(int16_t v, int16_t lo, int16_t hi) {
     return v;
 }
 
-void stm32boy_init(stm32boy_t *g, uint16_t width, uint16_t height,
-                   const display_hal_t *display)
+static bool display_is_valid(const display_hal_t *display)
 {
-    g->width = width;
-    g->height = height;
+    return display && display->width > 0U && display->height > 0U &&
+           display->set_addr_window && display->begin_pixels &&
+           display->end_pixels && display->push_color &&
+           display->push_pixels_rgb565;
+}
+
+bool stm32boy_init(stm32boy_t *g, const display_hal_t *display)
+{
+    if (!g || !display_is_valid(display)) {
+        return false;
+    }
+
+    g->width = display->width;
+    g->height = display->height;
     g->display = display;
 
     g->cursor_x = 0;
@@ -126,6 +137,8 @@ void stm32boy_init(stm32boy_t *g, uint16_t width, uint16_t height,
     g->text_bg = 0x0000;
     g->text_scale = 1;
     g->text_transparent = 1;
+    g->clear_color = COLOR_BLACK;
+    return true;
 }
 
 void stm32boy_fill_screen(stm32boy_t*g, uint16_t color)
@@ -202,6 +215,12 @@ static void stm32boy_line_v(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, i
 }
 void stm32boy_draw_line(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color)
 {
+    if (!g) return;
+    if (x0 == x1 && y0 == y1) {
+        stm32boy_draw_pixel(g, x0, y0, color);
+        return;
+    }
+
     if (abs(x1 - x0) > abs(y1 - y0)) {
         stm32boy_line_h(g, x0, y0, x1, y1, color);
     } else {
@@ -211,7 +230,7 @@ void stm32boy_draw_line(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, int16
 
 void stm32boy_fill_rect(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color)
 {
-    if (w <= 0 || h <= 0) return;
+    if (!g || !g->display || w <= 0 || h <= 0) return;
 
     // Clipping simple
     int16_t x0 = x;
@@ -230,10 +249,12 @@ void stm32boy_fill_rect(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t 
     uint16_t ww = (uint16_t)(x1 - x0 + 1);
     uint16_t hh = (uint16_t)(y1 - y0 + 1);
 
-    g->display->set_addr_window((uint16_t)x0, (uint16_t)y0, (uint16_t)x1, (uint16_t)y1);
-    g->display->begin_pixels();
-    g->display->push_color(color, (uint32_t)ww * (uint32_t)hh);
-    g->display->end_pixels();
+    void *context = g->display->context;
+    g->display->set_addr_window(context, (uint16_t)x0, (uint16_t)y0,
+                                (uint16_t)x1, (uint16_t)y1);
+    g->display->begin_pixels(context);
+    g->display->push_color(context, color, (uint32_t)ww * (uint32_t)hh);
+    g->display->end_pixels(context);
 }
 
 void stm32boy_draw_rect(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color)
@@ -256,7 +277,7 @@ void stm32boy_draw_triangle(stm32boy_t *g, int16_t x0, int16_t y0, int16_t x1, i
 
 void stm32boy_draw_polygon(stm32boy_t *g, const int16_t *points, uint16_t num_points, uint16_t color)
 {
-    if (num_points < 2) return;
+    if (!g || !points || num_points < 2) return;
 
     for (uint16_t i = 0; i < num_points; i++) {
         int16_t x0 = points[2 * i];
@@ -272,8 +293,7 @@ void stm32boy_draw_polygon(stm32boy_t *g, const int16_t *points, uint16_t num_po
 
 void stm32boy_write(stm32boy_t *g, const char *s)
 {
-
-
+    if (!g || !s) return;
     const uint8_t scale = (g->text_scale == 0) ? 1 : g->text_scale;
     const int32_t advance_x = 6 * (int32_t)scale;
     const int32_t advance_y = 8 * (int32_t)scale;
@@ -287,16 +307,16 @@ void stm32boy_write(stm32boy_t *g, const char *s)
 
         if (c == '\n') {
             cx = 0; // volver al inicio de línea
-            cy -= advance_y;                 // cy = cy - advance_y; <-- BAJAR línea
-            if (cy < 0 || cy > (int32_t)g->height) break;   //si se sale del área de dibujo salir del bucle 
+            cy += advance_y;
+            if (cy + advance_y > (int32_t)g->height) break;
             continue;
         }
 
         // wrap horizontal
         if (cx + advance_x > (int32_t)g->width) { //comprobamos si el cursor excede el tamaño de la pantalla
             cx = 0;
-            cy -= advance_y;                 // <-- BAJAR línea
-            if (cy < 0) break;
+            cy += advance_y;
+            if (cy + advance_y > (int32_t)g->height) break;
         }
 
         g->cursor_x = (uint16_t)cx;
@@ -316,6 +336,7 @@ void stm32boy_write(stm32boy_t *g, const char *s)
 
 void stm32boy_set_text_cursor(stm32boy_t *g, uint16_t x, uint16_t y) 
 { 
+    if (!g) return;
     g->cursor_x = x; 
     g->cursor_y = y; 
 }
@@ -364,12 +385,17 @@ text_size_t stm32boy_measure_text_wrap(stm32boy_t *g, const char *s)
 
 void stm32boy_set_text_color(stm32boy_t *g, uint16_t fg, uint16_t bg, uint8_t transparent)
 {
+    if (!g) return;
     g->text_fg = fg; 
     g->text_bg = bg; 
     g->text_transparent = transparent;
 }
 
-void stm32boy_set_text_scale(stm32boy_t *g, uint8_t scale) { g->text_scale = (scale == 0) ? 1 : scale; }
+void stm32boy_set_text_scale(stm32boy_t *g, uint8_t scale)
+{
+    if (!g) return;
+    g->text_scale = (scale == 0) ? 1 : scale;
+}
 
 
 
@@ -390,13 +416,13 @@ void stm32boy_draw_char(stm32boy_t *g, char c)
     for (uint8_t col = 0; col < 5; ++col) {
         uint8_t bits = glyph[col];
         for (uint8_t row = 0; row < 8; ++row) {
-            if (bits & 0x80) { // MSB
+            if (bits & 0x01U) {
                 int16_t px = x0 + (int16_t)col * (int16_t)scale;
                 int16_t py = y0 + (int16_t)row * (int16_t)scale;
                 if (scale == 1) stm32boy_draw_pixel(g, px, py, g->text_fg);
                 else stm32boy_fill_rect(g, px, py, scale, scale, g->text_fg);
             }
-            bits <<= 1;
+            bits >>= 1;
         }
     }
 
@@ -414,13 +440,16 @@ void stm32boy_write_at(stm32boy_t *g, uint16_t x, uint16_t y, const char *s)
 
 void stm32boy_draw_pixel(stm32boy_t *g, int16_t x, int16_t y, stm32boy_color_t color)
 {
+    if (!g || !g->display) return;
     if (x < 0 || y < 0) return;
     if (x >= (int16_t)g->width || y >= (int16_t)g->height) return;
 
-    g->display->set_addr_window((uint16_t)x, (uint16_t)y, (uint16_t)x, (uint16_t)y);
-    g->display->begin_pixels();
-    g->display->push_color(color, 1);
-    g->display->end_pixels();
+    void *context = g->display->context;
+    g->display->set_addr_window(context, (uint16_t)x, (uint16_t)y,
+                                (uint16_t)x, (uint16_t)y);
+    g->display->begin_pixels(context);
+    g->display->push_color(context, color, 1);
+    g->display->end_pixels(context);
 }
 
 void stm32boy_draw_fast_hline(stm32boy_t *g, int16_t x, int16_t y, int16_t w, stm32boy_color_t color)
@@ -444,14 +473,53 @@ void stm32boy_draw_fast_vline(stm32boy_t *g, int16_t x, int16_t y, int16_t h, st
 void stm32boy_draw_bitmap_rgb565(stm32boy_t *g, int16_t x, int16_t y, int16_t w, int16_t h,
                                  const uint16_t *pixels)
 {
-    g->display->set_addr_window((uint16_t)x, (uint16_t)y, (uint16_t)(x + w - 1), (uint16_t)(y + h - 1));
-    g->display->begin_pixels();
-    g->display->push_pixels_rgb565(pixels, (uint32_t)w * (uint32_t)h);
-    g->display->end_pixels();
+    if (!g || !g->display || !pixels || w <= 0 || h <= 0) return;
+
+    int16_t x0 = x;
+    int16_t y0 = y;
+    int16_t x1 = (int16_t)(x + w - 1);
+    int16_t y1 = (int16_t)(y + h - 1);
+
+    if (x1 < 0 || y1 < 0 || x0 >= (int16_t)g->width ||
+        y0 >= (int16_t)g->height) {
+        return;
+    }
+
+    int16_t clipped_x0 = clamp16(x0, 0, (int16_t)g->width - 1);
+    int16_t clipped_y0 = clamp16(y0, 0, (int16_t)g->height - 1);
+    int16_t clipped_x1 = clamp16(x1, 0, (int16_t)g->width - 1);
+    int16_t clipped_y1 = clamp16(y1, 0, (int16_t)g->height - 1);
+    uint16_t visible_w = (uint16_t)(clipped_x1 - clipped_x0 + 1);
+    uint16_t visible_h = (uint16_t)(clipped_y1 - clipped_y0 + 1);
+    uint16_t source_x = (uint16_t)(clipped_x0 - x0);
+    uint16_t source_y = (uint16_t)(clipped_y0 - y0);
+    void *context = g->display->context;
+
+    if (visible_w == (uint16_t)w && visible_h == (uint16_t)h) {
+        g->display->set_addr_window(context, (uint16_t)x0, (uint16_t)y0,
+                                    (uint16_t)x1, (uint16_t)y1);
+        g->display->begin_pixels(context);
+        g->display->push_pixels_rgb565(context, pixels,
+                                       (uint32_t)w * (uint32_t)h);
+        g->display->end_pixels(context);
+        return;
+    }
+
+    for (uint16_t row = 0; row < visible_h; ++row) {
+        const uint16_t *source = pixels +
+            ((uint32_t)(source_y + row) * (uint32_t)w) + source_x;
+        uint16_t target_y = (uint16_t)(clipped_y0 + (int16_t)row);
+
+        g->display->set_addr_window(context, (uint16_t)clipped_x0, target_y,
+                                    (uint16_t)clipped_x1, target_y);
+        g->display->begin_pixels(context);
+        g->display->push_pixels_rgb565(context, source, visible_w);
+        g->display->end_pixels(context);
+    }
 }
 
 void stm32boy_draw_sprite(stm32boy_t *g, int16_t x, int16_t y, const sprite_t *sprite)
 {
-    if (!g || !sprite) return;
+    if (!g || !sprite || !sprite->pixels) return;
     stm32boy_draw_bitmap_rgb565(g, x, y, sprite->w, sprite->h, sprite->pixels);
 }

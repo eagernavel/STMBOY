@@ -1,16 +1,14 @@
 # Add componens
 add_subdirectory(component/ili9486)
-# Add all platforms
-add_subdirectory(nucleof411re)
-
-# Establish build properties based on target plaftorm
-set(PLATFORM_TO_LINK "")
+# Select only platforms that are implemented and buildable.
 if(PLATFORM_TARGET STREQUAL "PLATFORM_NUCLEOF411RE")
+    add_subdirectory(nucleof411re)
     set(PLATFORM_TO_LINK "PLATFORM_NUCLEOF411RE")
-elseif(PLATFORM_TARGET STREQUAL "PLATFORM_NUCLEOF412ZG")
-    set(PLATFORM_TO_LINK "PLATFORM_NUCLEOF412ZG")
 else()
-    message(FATAL_ERROR "PLATFORM_TARGET must be provided with a valid target platform.")
+    message(FATAL_ERROR
+        "Unsupported PLATFORM_TARGET='${PLATFORM_TARGET}'. "
+        "The validated platform is PLATFORM_NUCLEOF411RE."
+    )
 endif()
 
 # Define generic plaftorm interface to link to

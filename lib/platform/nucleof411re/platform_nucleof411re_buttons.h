@@ -2,23 +2,9 @@
 #define PLATFORM_NUCLEOF411RE_BUTTONS_H
 
 #include <stdint.h>
-#include <stdbool.h>
 
+#include "common/input.h"
 #include "stm32f4xx_ll_gpio.h"
-
-/* -----------------------------------------------------------------------
- * Identificadores de botón.
- *
- * Extensible: añadir nuevos botones aquí y en la Config de init.
- * El orden del enum NO debe cambiar una vez el firmware está en uso
- * (rompe compatibilidad binaria con datos persistidos).
- * ----------------------------------------------------------------------- */
-typedef enum {
-    BTN_UP    = 0,
-    BTN_DOWN  = 1,
-    BTN_START = 2,
-    BTN_COUNT           /* Siempre al final — no usar como botón */
-} button_id_t;
 
 /* -----------------------------------------------------------------------
  * Configuración de un pin de botón.
@@ -36,24 +22,8 @@ typedef struct {
 } platform_nucleof411re_button_PinConfig;
 
 typedef struct {
-    platform_nucleof411re_button_PinConfig buttons[BTN_COUNT];
+    platform_nucleof411re_button_PinConfig buttons[INPUT_BUTTON_COUNT];
 } platform_nucleof411re_buttons_Config;
-
-/* -----------------------------------------------------------------------
- * Estado de los botones.
- *
- * held     → el botón está pulsado en este instante.
- * pressed  → flanco de bajada: pulsado ESTE frame, libre el anterior.
- * released → flanco de subida: libre ESTE frame, pulsado el anterior.
- *
- * Los flancos son especialmente útiles para menús (una pulsación = una
- * acción) y evitan el efecto de repetición infinita al mantener pulsado.
- * ----------------------------------------------------------------------- */
-typedef struct {
-    bool held    [BTN_COUNT];
-    bool pressed [BTN_COUNT];   /* Flanco bajada — evento puntual */
-    bool released[BTN_COUNT];   /* Flanco subida  — evento puntual */
-} button_state_t;
 
 /* -----------------------------------------------------------------------
  * API pública
@@ -85,6 +55,6 @@ void platform_nucleof411re_buttons_update(void);
  *
  * Válido hasta la próxima llamada a platform_nucleof411re_buttons_update().
  */
-const button_state_t *platform_nucleof411re_buttons_get(void);
+const input_state_t *platform_nucleof411re_buttons_get(void);
 
 #endif /* PLATFORM_NUCLEOF411RE_BUTTONS_H */
