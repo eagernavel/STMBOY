@@ -15,7 +15,7 @@ STMBOY es un proyecto bare-metal para STM32 NUCLEO-F411RE que implementa una API
 source/                         Demostracion grafica y soporte newlib
 lib/common/                     Tipos compartidos y HAL abstracto de display
 lib/graphics/                   Primitivas 2D, texto y sprites
-lib/game_engine/                Actor y animacion por frames
+lib/game_engine/                Prototipo experimental no incluido en el firmware
 lib/bsp/                        Fachada de inicializacion de placa
 lib/platform/                   Seleccion y adaptacion de plataforma
 lib/platform/nucleof411re/      Reloj, UART, SysTick, botones e ILI9486
@@ -62,4 +62,17 @@ make flash
 
 ## Estado del proyecto
 
-La plataforma soportada y validada es `stm32f411re`. Las capas de graficos, modelo de demostracion y driver ILI9486 disponen de pruebas nativas independientes del STM32.
+La unica plataforma incluida en el flujo de compilacion es `stm32f411re`. El proyecto genera correctamente el firmware para la placa y la validacion funcional se realiza manualmente sobre el hardware.
+
+## Validacion manual
+
+Despues de compilar y programar la placa, comprobar:
+
+1. La pantalla muestra la interfaz completa al arrancar.
+2. `BTN_UP` aumenta el nivel hasta un maximo de 100.
+3. `BTN_DOWN` reduce el nivel hasta un minimo de 0.
+4. `BTN_START` cambia el color principal de la interfaz.
+5. El indicador de latido cambia periodicamente sin bloquear los botones.
+6. Al mantener `BTN_UP` y `BTN_DOWN` simultaneamente, el nivel permanece estable.
+
+Estas comprobaciones deben registrarse indicando fecha, version del firmware, resultado y cualquier incidencia observada.

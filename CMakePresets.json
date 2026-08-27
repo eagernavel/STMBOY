@@ -2,7 +2,7 @@
     "version": 3,
     "cmakeMinimumRequired": {
         "major": 3,
-        "minor": 19,
+        "minor": 22,
         "patch": 0
     },
     "configurePresets": [
@@ -19,16 +19,6 @@
                 "STM32F4xx_TARGET": "STM32F411xE",
                 "PLATFORM_TARGET": "PLATFORM_NUCLEOF411RE"
             }
-        },
-        {
-            "name": "host-tests",
-            "description": "Build native unit tests",
-            "generator": "Ninja",
-            "binaryDir": "${sourceDir}/build/host-tests",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
-                "STM32BOY_BUILD_HOST_TESTS": "ON"
-            }
         }
     ],
     "buildPresets": [
@@ -36,12 +26,6 @@
             "name": "stm32f411re",
             "description": "Build using the stm32f411re configuration",
             "configurePreset": "stm32f411re",
-            "jobs": 4
-        },
-        {
-            "name": "host-tests",
-            "description": "Build native unit tests",
-            "configurePreset": "host-tests",
             "jobs": 4
         }
     ]
