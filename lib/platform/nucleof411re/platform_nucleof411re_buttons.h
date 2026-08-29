@@ -9,8 +9,7 @@
 /* -----------------------------------------------------------------------
  * Configuración de un pin de botón.
  *
- * Misma filosofía que platform_nucleof411re_serial_PinConfig:
- * datos puros, sin lógica, inyectados desde platform_nucleof411re.c.
+ * Datos puros, sin lógica, inyectados desde platform_nucleof411re.c.
  * ----------------------------------------------------------------------- */
 typedef struct {
     /** Macro tipo LL_AHB1_GRP1_PERIPH_GPIOx — para habilitar el clock */

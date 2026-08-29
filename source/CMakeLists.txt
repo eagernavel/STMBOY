@@ -11,12 +11,6 @@ target_compile_options(${EXECUTABLE_TARGET} PRIVATE
     -Wall -Wextra -Wpedantic
 )
 
-# Syscalls
-target_sources(${EXECUTABLE_TARGET} PRIVATE
-    syscalls.c
-    sysmem.c
-)
-
 # Source code
 target_include_directories(${EXECUTABLE_TARGET} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}

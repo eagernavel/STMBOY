@@ -12,13 +12,13 @@ STMBOY es un proyecto bare-metal para STM32 NUCLEO-F411RE que implementa una API
 ## Estructura
 
 ```text
-source/                         Demostracion grafica y soporte newlib
+source/                         Demostracion grafica
 lib/common/                     Tipos compartidos y HAL abstracto de display
 lib/graphics/                   Primitivas 2D, texto y sprites
 lib/game_engine/                Prototipo experimental no incluido en el firmware
 lib/bsp/                        Fachada de inicializacion de placa
 lib/platform/                   Seleccion y adaptacion de plataforma
-lib/platform/nucleof411re/      Reloj, UART, SysTick, botones e ILI9486
+lib/platform/nucleof411re/      Reloj, SysTick, botones e ILI9486
 lib/platform/component/ili9486/ Driver generico del controlador LCD
 third-party/stm32_driver/       CMSIS, startup y drivers LL de ST
 cmake/toolchain/                Toolchains arm-none-eabi
@@ -55,14 +55,22 @@ make flash
 
 ## Documentacion
 
-- [Documentacion tecnica TFM](docs/TFM_DOCUMENTACION_TECNICA.md)
-- [Guia de cableado de botones](docs/BUTTON_WIRING_GUIDE.md)
+- [Memoria TFM readaptada](TFM_READAPTADO.docx)
+- [Guia de montaje del shield y botones](docs/BUTTON_WIRING_GUIDE.md)
 - [Resumen tecnico de modulos](docs/TECHNICAL_OVERVIEW.md)
+- [Documentacion tecnica historica](docs/TFM_DOCUMENTACION_TECNICA.md)
 - [Revision arquitectonica previa](docs/revision_arquitectura_stm32boy.pdf)
 
 ## Estado del proyecto
 
 La unica plataforma incluida en el flujo de compilacion es `stm32f411re`. El proyecto genera correctamente el firmware para la placa y la validacion funcional se realiza manualmente sobre el hardware.
+
+El firmware no usa memoria dinamica, consola serie ni llamadas al sistema de
+Newlib. Las aserciones de los controladores LL se mantienen como parada segura:
+deshabilitan las interrupciones y detienen la ejecucion, pero no imprimen
+mensajes. Se conserva el entorno C minimo de Newlib-nano para el arranque y
+funciones basicas como `memset()`; no se trata de un firmware totalmente libre
+de biblioteca C.
 
 ## Validacion manual
 

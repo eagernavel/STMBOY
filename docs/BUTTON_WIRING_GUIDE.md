@@ -1,4 +1,71 @@
-# Guía de Conexión: Botones de 4 Pines en Breadboard con STM32F411RE (Nucleo-F411RE)
+# Guía de montaje: shield ILI9486 y botones con STM32F411RE
+
+---
+
+## 0. Montaje de referencia y tabla definitiva de pines
+
+El montaje documentado consta de una **NUCLEO-F411RE**, un shield TFT de 3,5
+pulgadas con controlador **ILI9486** y conector compatible con Arduino Uno, y
+tres pulsadores conectados en una breadboard. El shield se inserta directamente
+en los conectores Arduino de la Nucleo; los pulsadores se conectan a CN7 para no
+ocupar pines del shield.
+
+La siguiente tabla es la asignación definitiva del firmware. Se obtiene de
+`platform_nucleof411re_ili9486.c` y coincide con el pinout Arduino de la
+NUCLEO-F411RE descrito en UM1724.
+
+Referencia de placa: [UM1724, STM32 Nucleo-64 boards (MB1136), STMicroelectronics](https://www.st.com/resource/en/user_manual/dm00105823.pdf).
+
+| Señal del shield | Conector Arduino de la Nucleo | GPIO STM32 | Uso en el firmware |
+|---|---|---|---|
+| `LCD_RST` / `RES` | CN8 `A4` | `PC1` | Reset del controlador, activo a nivel bajo. |
+| `LCD_CS` / `CS` | CN8 `A3` | `PB0` | Selección del display, activa a nivel bajo. |
+| `LCD_RS` / `DC` | CN8 `A2` | `PA4` | Distingue comandos y datos. |
+| `LCD_WR` / `WRX` | CN8 `A1` | `PA1` | Pulso de escritura. |
+| `LCD_RD` / `RDX` | CN8 `A0` | `PA0` | Se deja inactivo; el firmware solo escribe. |
+| `LCD_D0` / `DB0` | CN5 `D8` | `PA9` | Bit 0 del bus paralelo. |
+| `LCD_D1` / `DB1` | CN5 `D9` | `PC7` | Bit 1 del bus paralelo. |
+| `LCD_D2` / `DB2` | CN9 `D2` | `PA10` | Bit 2 del bus paralelo. |
+| `LCD_D3` / `DB3` | CN9 `D3` | `PB3` | Bit 3 del bus paralelo. |
+| `LCD_D4` / `DB4` | CN9 `D4` | `PB5` | Bit 4 del bus paralelo. |
+| `LCD_D5` / `DB5` | CN9 `D5` | `PB4` | Bit 5 del bus paralelo. |
+| `LCD_D6` / `DB6` | CN9 `D6` | `PB10` | Bit 6 del bus paralelo. |
+| `LCD_D7` / `DB7` | CN9 `D7` | `PA8` | Bit 7 del bus paralelo. |
+
+El bus de datos está repartido entre GPIOA, GPIOB y GPIOC. Por ello el
+firmware genera para cada byte tres escrituras atómicas `BSRR`; no debe
+modificarse el orden de los pines de datos sin regenerar `db_lut.h`.
+
+La alimentación del shield entra por el conector de potencia Arduino CN6. El
+firmware usa GPIO a 3,3 V. Antes de energizar, hay que comprobar en la serigrafía
+o en el esquema del shield concreto que acepta `IOREF = 3,3 V`; nunca se debe
+aplicar una señal de 5 V directamente a un GPIO del STM32. La tabla anterior es
+definitiva para las señales lógicas, pero la selección de alimentación o del
+regulador depende del modelo físico de shield.
+
+### Botones
+
+| Botón | GPIO STM32 | Punto de conexión recomendado | Conexión eléctrica | Efecto visible |
+|---|---|---|---|---|
+| `BTN_UP` | `PC0` | CN7 pin 38, columna derecha | Pulsador entre `PC0` y GND | Aumenta el nivel. |
+| `BTN_DOWN` | `PC2` | CN7 pin 35, columna izquierda | Pulsador entre `PC2` y GND | Reduce el nivel. |
+| `BTN_START` | `PC3` | CN7 pin 37, columna izquierda | Pulsador entre `PC3` y GND | Cambia la paleta. |
+| Tierra común | — | CN7 pin 8, 19, 20 o 22 | Rail negativo de la breadboard | Referencia común. |
+
+Los tres botones son **active-low**: el firmware activa el pull-up interno y
+considera pulsado el botón cuando el pin queda conectado a GND. `PC0` también
+puede aparecer en CN8 `A5`, pero con el shield montado se recomienda CN7; A5
+solo es práctico si se usan cabeceras apilables. Las rutas `A4 = PC1` y
+`A5 = PC0` dependen de los solder bridges de la Nucleo, por lo que deben
+mantenerse en la configuración analógica por defecto indicada en UM1724.
+
+### Secuencia de montaje
+
+1. Con la Nucleo sin alimentación, alinear y conectar el shield en los cuatro conectores Arduino: CN5, CN6, CN8 y CN9.
+2. Conectar un rail de GND de la breadboard a CN7 pin 8, 19, 20 o 22.
+3. Colocar los tres pulsadores a caballo del canal central de la breadboard.
+4. Conectar `PC0`, `PC2` y `PC3` a un terminal de cada pulsador; conectar el terminal opuesto de cada uno al rail de GND.
+5. Revisar la compatibilidad eléctrica del shield, comprobar que no hay cortocircuitos y, solo entonces, alimentar por USB y programar el firmware.
 
 ---
 
@@ -68,11 +135,11 @@ No se necesitan resistencias externas porque el pull-up interno (~40 kΩ) es suf
 
 El archivo `platform_nucleof411re.c` define la siguiente configuración:
 
-| Botón | GPIO | Pin STM32 | Función en el juego |
+| Botón | GPIO | Pin STM32 | Efecto en la demostración |
 |-------|------|-----------|---------------------|
-| `BTN_UP` | GPIOC | **PC0** | Mover la pala izquierda hacia arriba |
-| `BTN_DOWN` | GPIOC | **PC2** | Mover la pala izquierda hacia abajo |
-| `BTN_START` | GPIOC | **PC3** | Iniciar, pausar o reiniciar la partida |
+| `BTN_UP` | GPIOC | **PC0** | Aumentar el nivel mostrado |
+| `BTN_DOWN` | GPIOC | **PC2** | Reducir el nivel mostrado |
+| `BTN_START` | GPIOC | **PC3** | Cambiar la paleta de colores |
 
 ---
 
@@ -120,12 +187,12 @@ típica, pin 38 expone PC0.
 | **PC3** | CN7 | pin 37 (columna izquierda) |
 | **GND** | CN7 | pin 8, 19, 20, 22 o cualquier GND |
 
-### Conector Arduino (alternativa para PC0)
+### Conector Arduino (alternativa eléctrica para PC0)
 
-En el conector Arduino **CN6** (analógico), el pin **A5** corresponde a **PC0**, lo que puede ser más accesible según tu breadboard:
+En el conector Arduino **CN8** (analógico), el pin **A5** corresponde a **PC0**. Con el shield montado, CN7 es preferible porque el propio shield ocupa CN8:
 
 ```
-CN6 (Arduino analógico)
+CN8 (Arduino analógico)
 ┌──────┬─────┐
 │  A0  │ PA0 │
 │  A1  │ PA1 │
@@ -218,13 +285,14 @@ Compila y flashea el firmware con tu configuración de CMake:
 cmake --preset stm32f411re
 cmake --build --preset stm32f411re
 # O con Makefile:
-make stm32f411re
+make configure
+make
 ```
 
 Al arrancar el firmware:
-- **BTN_UP** (PC0): la pala izquierda se mueve hacia arriba mientras se mantiene pulsado.
-- **BTN_DOWN** (PC2): la pala izquierda se mueve hacia abajo mientras se mantiene pulsado.
-- **BTN_START** (PC3): inicia la partida desde el titulo, pausa/reanuda durante el juego y reinicia tras game over.
+- **BTN_UP** (PC0): aumenta el nivel hasta un máximo de 100.
+- **BTN_DOWN** (PC2): reduce el nivel hasta un mínimo de 0.
+- **BTN_START** (PC3): cambia el color principal de la interfaz.
 
 ---
 
@@ -250,7 +318,7 @@ PC0 ──────────────────── A ┐
 | Botón siempre activo | Cortocircuito en breadboard | Revisa que GND y el GPIO no comparten la misma fila |
 | Doble pulsación (rebote) | Sin debounce en firmware | El driver lee flancos por frame; si el problema persiste, añade un condensador de 100 nF entre pin y GND |
 | Botón activo sin pulsar | Pulsador orientado 90° | Rota el pulsador 90°; los pares A-B / C-D cambian de posición |
-| La pala no se mueve | Pin GPIO incorrecto, boton mal orientado o GND incorrecto | Prueba tocando PC0/PC2 directamente contra GND real |
+| La interfaz no responde | Pin GPIO incorrecto, botón mal orientado o GND incorrecto | Prueba tocando PC0/PC2 directamente contra GND real |
 
 ---
 
@@ -259,9 +327,9 @@ PC0 ──────────────────── A ┐
 ```
 NUCLEO-F411RE — Pines usados por STMBOY buttons
 ═══════════════════════════════════════════════
-  PC0  →  CN7 pin 38  ─►  BTN_UP    (pala arriba)
-  PC2  →  CN7 pin 35  ─►  BTN_DOWN  (pala abajo)
-  PC3  →  CN7 pin 37  ─►  BTN_START (inicio/pausa/reinicio)
+  PC0  →  CN7 pin 38  ─►  BTN_UP    (aumentar nivel)
+  PC2  →  CN7 pin 35  ─►  BTN_DOWN  (reducir nivel)
+  PC3  →  CN7 pin 37  ─►  BTN_START (cambiar paleta)
   GND  →  CN7 pin 8/19/20/22 ─►  Rail GND breadboard
 ═══════════════════════════════════════════════
   Lógica: active-low | pull-up interno activado

@@ -7,7 +7,6 @@ Este directorio implementa la adaptacion a hardware para ejecutar STMBOY en una 
 La plataforma configura y controla los perifericos concretos de la placa:
 
 - reloj del sistema;
-- UART de depuracion;
 - SysTick de 1 ms;
 - GPIO de botones;
 - GPIO y bus paralelo del display ILI9486.
@@ -20,7 +19,6 @@ La aplicacion no accede directamente a registros STM32. Lo hace a traves de las 
 |---|---|
 | `platform_nucleof411re.c` | Orquestacion de inicializacion |
 | `platform_nucleof411re_clock.*` | HSI, PLL, Flash latency y prescalers |
-| `platform_nucleof411re_serial.*` | USART2 TX y redireccion de `_write()` |
 | `systick.*` | Contador de milisegundos por interrupcion SysTick |
 | `platform_nucleof411re_buttons.*` | Tres botones active-low con pull-up interno |
 | `platform_nucleof411re_ili9486.*` | Bus paralelo 8080, inicializacion y pixel stream |
@@ -32,7 +30,6 @@ La aplicacion no accede directamente a registros STM32. Lo hace a traves de las 
 ```text
 platform_init()
   -> prv_init_clock()
-  -> prv_init_serial()
   -> platform_nucleof411re_ili9486_init()
   -> prv_init_buttons()
   -> systick_init()
@@ -40,10 +37,17 @@ platform_init()
 
 El orden es deliberado:
 
-1. El reloj se configura primero porque UART, delays y bus dependen de `SystemCoreClock`.
-2. UART se inicializa temprano para permitir trazas de depuracion.
-3. El display se deja en estado conocido antes de que la aplicacion dibuje.
-4. Los botones se configuran antes del bucle principal.
+1. El reloj se configura primero porque los delays y el bus dependen de `SystemCoreClock`.
+2. El display se deja en estado conocido antes de que la aplicacion dibuje.
+3. Los botones se configuran antes del bucle principal.
+4. SysTick se activa al final para proporcionar la base temporal de la aplicacion.
+
+## Diagnostico y memoria
+
+La plataforma no inicializa una consola serie ni redirige `printf()`. Las
+aserciones se conservan, pero su manejador solo deshabilita interrupciones y
+detiene el microcontrolador. El firmware tampoco reserva heap dinamico ni
+implementa llamadas al sistema de Newlib.
 
 ## Botones
 

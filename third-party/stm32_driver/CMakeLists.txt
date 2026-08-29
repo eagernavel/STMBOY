@@ -41,7 +41,6 @@ target_sources(${HAL_LIB} INTERFACE
     stm32_ll_drivers/source/stm32f4xx_ll_pwr.c
     stm32_ll_drivers/source/stm32f4xx_ll_rcc.c
     stm32_ll_drivers/source/stm32f4xx_ll_tim.c
-    stm32_ll_drivers/source/stm32f4xx_ll_usart.c
     stm32_ll_drivers/source/stm32f4xx_ll_utils.c
 )
 

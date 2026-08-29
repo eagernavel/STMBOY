@@ -1,5 +1,10 @@
 # STMBOY - Documentacion tecnica del proyecto
 
+> **Documento historico.** Este texto conserva decisiones de una version
+> anterior y puede mencionar UART, `syscalls.c`, `sysmem.c` y pruebas de host
+> que ya no forman parte del firmware final. La referencia actual es
+> [TFM_READAPTADO.docx](../TFM_READAPTADO.docx).
+
 > Documento base para memoria de Trabajo Final de Master.  
 > Plataforma principal: STM32 NUCLEO-F411RE.  
 > Pantalla: ILI9486 en bus paralelo 8080 de 8 bits.  
@@ -534,4 +539,3 @@ Para una memoria final, la narrativa recomendable es:
 4. explicar el bus ILI9486 y la optimizacion con LUT/BSRR;
 5. explicar entrada active-low y estado por flancos;
 6. cerrar con Pong como validacion de integracion completa.
-

@@ -1,6 +1,5 @@
 #include "platform/platform.h"
 #include "platform/nucleof411re/platform_nucleof411re_clock.h"
-#include "platform/nucleof411re/platform_nucleof411re_serial.h"
 #include "platform/nucleof411re/platform_nucleof411re_ili9486.h"
 #include "platform/nucleof411re/platform_nucleof411re_buttons.h"
 #include "platform/nucleof411re/systick.h"
@@ -29,24 +28,6 @@ static void prv_init_clock(void)
     };
     platform_nucleof411re_clock_init(clock_config);
 
-}
-
-static void prv_init_serial(void)
-{
-    const platform_nucleof411re_serial_Config serial_config = {
-        .tx_pin_config = {
-            .gpio_peripheral_enable = LL_AHB1_GRP1_PERIPH_GPIOA,
-            .gpio = GPIOA,
-            .pin = LL_GPIO_PIN_2,
-            .af = LL_GPIO_AF_7,
-        },
-        .uart_config = {
-            .uart_peripheral_enable = LL_APB1_GRP1_PERIPH_USART2,
-            .uart = USART2,
-            .baudrate = 115200,
-        },
-    };
-    platform_nucleof411re_serial_init(serial_config);
 }
 
 static void prv_init_buttons(void)
@@ -91,7 +72,6 @@ bool platform_init(void)
     }
 
     prv_init_clock();
-    prv_init_serial();
     if (!platform_nucleof411re_ili9486_init()) {
         return false;
     }

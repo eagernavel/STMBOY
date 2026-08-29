@@ -1,17 +1,21 @@
 #include <stdint.h>
-#include <stdio.h>
 
 #include "cmsis_compiler.h"
 #include "stm32_assert.h"
 
-#ifdef USE_FULL_ASSERT
-void assert_failed(uint8_t *file, uint32_t line)
+static void halt_on_assert(void)
 {
-    printf("[ASSERT] LL assert failed: %s, line %lu\r\n",
-           (const char *)file, (unsigned long)line);
     __disable_irq();
     for (;;) {
     }
+}
+
+#ifdef USE_FULL_ASSERT
+void assert_failed(uint8_t *file, uint32_t line)
+{
+    (void)file;
+    (void)line;
+    halt_on_assert();
 }
 #endif
 
@@ -20,11 +24,9 @@ void __assert_func(const char *file,
                    const char *function,
                    const char *expression)
 {
-    printf("[ASSERT] %s:%d func=%s expr=(%s)\r\n",
-           file, line,
-           function ? function : "?",
-           expression ? expression : "?");
-    __disable_irq();
-    for (;;) {
-    }
+    (void)file;
+    (void)line;
+    (void)function;
+    (void)expression;
+    halt_on_assert();
 }

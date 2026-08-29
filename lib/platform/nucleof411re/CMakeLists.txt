@@ -12,7 +12,6 @@ target_include_directories(${PLATFORM_NUCLEOF411RE_TARGET} PUBLIC ${CMAKE_CURREN
 target_sources(${PLATFORM_NUCLEOF411RE_TARGET} PRIVATE
     platform_nucleof411re.c
     platform_nucleof411re_clock.c
-    platform_nucleof411re_serial.c
     platform_nucleof411re_ili9486.c
     platform_nucleof411re_buttons.c
     platform_nucleof411re_assert.c
