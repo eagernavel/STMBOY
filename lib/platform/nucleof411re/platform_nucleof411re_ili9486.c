@@ -70,25 +70,6 @@ static void init_interface_pins(void)
     LL_GPIO_SetOutputPin(ILI9486_RD_GPIO, ILI9486_RD_PIN);
 }
 
-static void set_data_bus_as_output(void)
-{
-    LL_GPIO_InitTypeDef gpio = {0};
-    gpio.Mode = LL_GPIO_MODE_OUTPUT;
-    gpio.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
-    gpio.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-    gpio.Pull = LL_GPIO_PULL_NO;
-
-    gpio.Pin = ILI9486_DB1_PIN;
-    LL_GPIO_Init(GPIOC, &gpio);
-
-    gpio.Pin = ILI9486_DB0_PIN | ILI9486_DB2_PIN | ILI9486_DB7_PIN;
-    LL_GPIO_Init(GPIOA, &gpio);
-
-    gpio.Pin = ILI9486_DB3_PIN | ILI9486_DB4_PIN |
-               ILI9486_DB5_PIN | ILI9486_DB6_PIN;
-    LL_GPIO_Init(GPIOB, &gpio);
-}
-
 static inline void res_set(void)
 {
     ILI9486_RES_GPIO->BSRR = ILI9486_RES_PIN;
@@ -239,7 +220,6 @@ bool platform_nucleof411re_ili9486_init(void)
     }
 
     init_interface_pins();
-    set_data_bus_as_output();
 
     const ili9486_bus_t bus = {
         .context = NULL,

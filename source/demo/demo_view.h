@@ -9,9 +9,12 @@
 
 typedef struct {
     bool initialized;
-    uint8_t level;
-    uint8_t palette;
-    bool heartbeat_on;
+    int16_t actor_x;
+    int16_t actor_y;
+    uint16_t actor_frame;
+    uint16_t bounce_count;
+    uint8_t speed;
+    bool paused;
 } demo_view_t;
 
 void demo_view_init(demo_view_t *view);
