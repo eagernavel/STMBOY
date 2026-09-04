@@ -3,7 +3,6 @@ add_executable(${EXECUTABLE_TARGET})
 
 target_link_libraries(${EXECUTABLE_TARGET} PRIVATE
     BSP
-    game_engine
     graphics
 )
 
@@ -19,7 +18,6 @@ target_include_directories(${EXECUTABLE_TARGET} PRIVATE
 
 target_sources(${EXECUTABLE_TARGET} PRIVATE
     main.c
-    demo/demo_assets.c
     demo/demo_model.c
     demo/demo_view.c
 )

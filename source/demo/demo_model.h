@@ -4,30 +4,25 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "game_engine/actor.h"
-
-#define DEMO_SPEED_MIN 1U
-#define DEMO_SPEED_MAX 6U
+#define DEMO_LEVEL_MIN     0U
+#define DEMO_LEVEL_MAX     100U
+#define DEMO_PALETTE_COUNT 4U
 
 typedef struct {
-    bool speed_up_pressed;
-    bool speed_down_pressed;
-    bool toggle_pause_pressed;
+    bool up_held;
+    bool down_held;
+    bool next_palette_pressed;
 } demo_input_t;
 
 typedef struct {
-    actor_t actor;
-    int16_t playfield_width;
-    int16_t playfield_height;
-    uint16_t bounce_count;
-    uint8_t speed;
-    bool paused;
+    uint8_t level;
+    uint8_t palette;
+    bool heartbeat_on;
+    uint32_t last_move_ms;
+    uint32_t last_heartbeat_ms;
 } demo_model_t;
 
-void demo_model_init(demo_model_t *model,
-                     int16_t playfield_width,
-                     int16_t playfield_height,
-                     uint32_t now_ms);
+void demo_model_init(demo_model_t *model, uint32_t now_ms);
 bool demo_model_update(demo_model_t *model,
                        const demo_input_t *input,
                        uint32_t now_ms);

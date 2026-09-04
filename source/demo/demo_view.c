@@ -1,10 +1,28 @@
 #include "demo_view.h"
 
 #define BACKGROUND_COLOR 0x0000U
+#define PANEL_COLOR      0x2104U
 #define MUTED_COLOR      0x7BEFU
 #define CYAN_COLOR       0x07FFU
+#define MAGENTA_COLOR    0xF81FU
 
-#define STATUS_BUFFER_SIZE 32U
+#define TRACK_X          42
+#define TRACK_Y          132
+#define TRACK_W          36
+#define TRACK_H          214
+#define INDICATOR_H      12
+
+static const uint16_t s_palette[DEMO_PALETTE_COUNT] = {
+    COLOR_GREEN,
+    CYAN_COLOR,
+    COLOR_YELLOW,
+    MAGENTA_COLOR,
+};
+
+static uint16_t accent_color(const demo_model_t *model)
+{
+    return s_palette[model->palette % DEMO_PALETTE_COUNT];
+}
 
 static void write_centered(stm32boy_t *graphics,
                            uint16_t y,
@@ -16,85 +34,99 @@ static void write_centered(stm32boy_t *graphics,
     stm32boy_write_at(graphics, x, y, text);
 }
 
-static uint8_t append_text(char buffer[STATUS_BUFFER_SIZE],
-                           uint8_t position,
-                           const char *text)
+static int16_t indicator_y(uint8_t level)
 {
-    while (*text != '\0' && position < STATUS_BUFFER_SIZE - 1U) {
-        buffer[position++] = *text++;
-    }
-    return position;
+    int16_t travel = TRACK_H - INDICATOR_H - 8;
+    int16_t offset = (int16_t)(((uint32_t)level * (uint32_t)travel) /
+                               DEMO_LEVEL_MAX);
+    return (int16_t)(TRACK_Y + TRACK_H - INDICATOR_H - 4 - offset);
 }
 
-static uint8_t append_u16(char buffer[STATUS_BUFFER_SIZE],
-                          uint8_t position,
-                          uint16_t value)
+static void format_level(uint8_t level, char text[4])
 {
-    uint16_t divisor = 10000U;
-    bool started = false;
-
-    while (divisor > 0U && position < STATUS_BUFFER_SIZE - 1U) {
-        uint8_t digit = (uint8_t)(value / divisor);
-        if (digit != 0U || started || divisor == 1U) {
-            buffer[position++] = (char)('0' + digit);
-            started = true;
-        }
-        value = (uint16_t)(value % divisor);
-        divisor = (uint16_t)(divisor / 10U);
-    }
-    return position;
+    text[0] = level >= 100U ? '1' : ' ';
+    text[1] = level >= 100U ? '0' :
+              level >= 10U ? (char)('0' + (level / 10U)) : ' ';
+    text[2] = level >= 100U ? '0' : (char)('0' + (level % 10U));
+    text[3] = '\0';
 }
 
-static void format_status(const demo_model_t *model,
-                          char buffer[STATUS_BUFFER_SIZE])
+static void draw_heartbeat(stm32boy_t *graphics, const demo_model_t *model)
 {
-    uint8_t position = 0U;
-    position = append_text(buffer, position, "SPEED ");
-    position = append_u16(buffer, position, model->speed);
-    position = append_text(buffer, position, "  BOUNCES ");
-    position = append_u16(buffer, position, model->bounce_count);
-    buffer[position] = '\0';
+    uint16_t color = model->heartbeat_on ? COLOR_GREEN : PANEL_COLOR;
+    stm32boy_fill_rect(graphics, (int16_t)graphics->width - 26, 18,
+                       10, 10, color);
 }
 
-static void draw_hud(stm32boy_t *graphics, const demo_model_t *model)
+static void draw_level(stm32boy_t *graphics, const demo_model_t *model)
 {
-    int16_t hud_y = model->playfield_height;
-    int16_t hud_height = (int16_t)graphics->height - hud_y;
-    char status[STATUS_BUFFER_SIZE];
-    format_status(model, status);
+    uint16_t accent = accent_color(model);
+    char level_text[4];
+    format_level(model->level, level_text);
 
-    stm32boy_fill_rect(graphics, 0, hud_y,
-                       (int16_t)graphics->width, hud_height,
-                       BACKGROUND_COLOR);
-    stm32boy_draw_fast_hline(graphics, 0, hud_y,
-                             (int16_t)graphics->width, CYAN_COLOR);
+    stm32boy_fill_rect(graphics, TRACK_X + 4, TRACK_Y + 4,
+                       TRACK_W - 8, TRACK_H - 8, BACKGROUND_COLOR);
+    stm32boy_fill_rect(graphics, TRACK_X + 4, indicator_y(model->level),
+                       TRACK_W - 8, INDICATOR_H, accent);
 
+    stm32boy_fill_rect(graphics, 102, 302, 88, 22, BACKGROUND_COLOR);
+    stm32boy_set_text_scale(graphics, 2);
+    stm32boy_set_text_color(graphics, accent, BACKGROUND_COLOR, 0);
+    stm32boy_write_at(graphics, 108, 304, level_text);
     stm32boy_set_text_scale(graphics, 1);
-    stm32boy_set_text_color(graphics, COLOR_WHITE,
-                            BACKGROUND_COLOR, 0);
-    write_centered(graphics, (uint16_t)(hud_y + 10), status);
-
-    stm32boy_set_text_color(graphics, MUTED_COLOR,
-                            BACKGROUND_COLOR, 0);
-    write_centered(graphics, (uint16_t)(hud_y + 34),
-                   "UP/DOWN: SPEED");
-
-    stm32boy_set_text_color(graphics,
-                            model->paused ? COLOR_YELLOW : COLOR_GREEN,
-                            BACKGROUND_COLOR, 0);
-    write_centered(graphics, (uint16_t)(hud_y + 58),
-                   model->paused ? "START: RESUME" : "START: PAUSE");
+    stm32boy_write_at(graphics, 150, 312, "%");
 }
 
-static void draw_actor(stm32boy_t *graphics, const demo_model_t *model)
+static void draw_full(stm32boy_t *graphics, const demo_model_t *model)
 {
-    const sprite_t *frame = sprite_anim_get_frame(&model->actor.anim);
-    if (!frame) return;
+    uint16_t accent = accent_color(model);
 
-    stm32boy_draw_sprite(graphics,
-                         model->actor.x,
-                         model->actor.y,
-                         frame);
+    stm32boy_fill_screen(graphics, BACKGROUND_COLOR);
+    stm32boy_draw_rect(graphics, 6, 6,
+                       (int16_t)graphics->width - 12,
+                       (int16_t)graphics->height - 12,
+                       accent);
+
+    stm32boy_set_text_scale(graphics, 2);
+    stm32boy_set_text_color(graphics, COLOR_WHITE, BACKGROUND_COLOR, 0);
+    write_centered(graphics, 24, "STMBOY");
+    stm32boy_set_text_scale(graphics, 1);
+    stm32boy_set_text_color(graphics, accent, BACKGROUND_COLOR, 0);
+    write_centered(graphics, 56, "DEMOSTRACION API GRAFICA");
+    stm32boy_draw_fast_hline(graphics, 24, 82,
+                             (int16_t)graphics->width - 48, accent);
+
+    stm32boy_set_text_color(graphics, MUTED_COLOR, BACKGROUND_COLOR, 0);
+    stm32boy_write_at(graphics, 24, 98, "ENTRADA + TIEMPO + DIBUJO");
+
+    stm32boy_fill_rect(graphics, 24, 118, 272, 244, PANEL_COLOR);
+    stm32boy_fill_rect(graphics, 28, 122, 264, 236, BACKGROUND_COLOR);
+
+    stm32boy_draw_rect(graphics, TRACK_X, TRACK_Y, TRACK_W, TRACK_H, accent);
+
+    stm32boy_set_text_color(graphics, COLOR_WHITE, BACKGROUND_COLOR, 0);
+    stm32boy_write_at(graphics, 105, 142, "PRIMITIVAS");
+    stm32boy_draw_rect(graphics, 108, 166, 62, 42, accent);
+    stm32boy_fill_rect(graphics, 184, 166, 62, 42, accent);
+    stm32boy_draw_line(graphics, 108, 226, 246, 266, COLOR_WHITE);
+    stm32boy_draw_triangle(graphics, 108, 274, 150, 230, 192, 274, accent);
+
+    stm32boy_fill_rect(graphics, 214, 286, 22, 16, COLOR_RED);
+    stm32boy_fill_rect(graphics, 240, 286, 22, 16, COLOR_GREEN);
+    stm32boy_fill_rect(graphics, 266, 286, 16, 16, COLOR_BLUE);
+
+    stm32boy_set_text_color(graphics, MUTED_COLOR, BACKGROUND_COLOR, 0);
+    stm32boy_write_at(graphics, 105, 286, "NIVEL");
+    draw_level(graphics, model);
+
+    stm32boy_set_text_color(graphics, COLOR_WHITE, BACKGROUND_COLOR, 0);
+    write_centered(graphics, 390, "ARRIBA / ABAJO: NIVEL");
+    stm32boy_set_text_color(graphics, accent, BACKGROUND_COLOR, 0);
+    write_centered(graphics, 414, "INICIO: CAMBIAR COLOR");
+    stm32boy_set_text_color(graphics, MUTED_COLOR, BACKGROUND_COLOR, 0);
+    write_centered(graphics, 446, "RENDERIZADO RGB565 DIRECTO");
+
+    draw_heartbeat(graphics, model);
 }
 
 void demo_view_init(demo_view_t *view)
@@ -109,39 +141,19 @@ void demo_view_render(stm32boy_t *graphics,
 {
     if (!graphics || !model || !view) return;
 
-    uint16_t frame = model->actor.anim.current_frame;
-    bool actor_changed = !view->initialized ||
-                         view->actor_x != model->actor.x ||
-                         view->actor_y != model->actor.y ||
-                         view->actor_frame != frame;
-    bool hud_changed = !view->initialized ||
-                       view->bounce_count != model->bounce_count ||
-                       view->speed != model->speed ||
-                       view->paused != model->paused;
-
-    if (!view->initialized) {
-        stm32boy_fill_screen(graphics, BACKGROUND_COLOR);
-    } else if (actor_changed) {
-        stm32boy_fill_rect(graphics,
-                           view->actor_x,
-                           view->actor_y,
-                           model->actor.w,
-                           model->actor.h,
-                           BACKGROUND_COLOR);
-    }
-
-    if (actor_changed) {
-        draw_actor(graphics, model);
-    }
-    if (hud_changed) {
-        draw_hud(graphics, model);
+    if (!view->initialized || view->palette != model->palette) {
+        draw_full(graphics, model);
+    } else {
+        if (view->level != model->level) {
+            draw_level(graphics, model);
+        }
+        if (view->heartbeat_on != model->heartbeat_on) {
+            draw_heartbeat(graphics, model);
+        }
     }
 
     view->initialized = true;
-    view->actor_x = model->actor.x;
-    view->actor_y = model->actor.y;
-    view->actor_frame = frame;
-    view->bounce_count = model->bounce_count;
-    view->speed = model->speed;
-    view->paused = model->paused;
+    view->level = model->level;
+    view->palette = model->palette;
+    view->heartbeat_on = model->heartbeat_on;
 }
